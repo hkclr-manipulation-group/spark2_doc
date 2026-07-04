@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Spark2 资料展示页</title>
+    <meta
+      name="description"
+      content="Spark2 机械臂及末端设备说明文档资料展示页，便于团队查看核心说明与下载相关文件。"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <div class="hero__content">
+        <p class="hero__eyebrow">Spark2 机械臂资料中心</p>
+        <h1>机械臂及末端设备说明文档</h1>
+        <p class="hero__text">
+          这里汇总了机械说明、软件说明、URDF 与文档说明等核心内容，适合团队内部查看、分享和后续补充资料。
+        </p>
+        <div class="hero__actions">
+          <a class="button button--primary" href="./downloads/机械臂及末端设备需求说明.md" download>
+            下载主说明文档
+          </a>
+          <a class="button button--secondary" href="#materials">
+            查看资料目录
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="panel intro-panel">
+        <div>
+          <h2>项目定位</h2>
+          <p>
+            本页面以说明文档为核心，面向机械接口、夹爪与相机安装、通信与 SDK、URDF 描述文件以及后续资料补充工作，提供统一的展示入口。
+          </p>
+        </div>
+        <div class="pill-group" aria-label="内容标签">
+          <span class="pill">机械说明</span>
+          <span class="pill">软件说明</span>
+          <span class="pill">URDF 说明</span>
+          <span class="pill">资料补充</span>
+        </div>
+      </section>
+
+      <section class="section" id="requirements">
+        <h2>内容模块</h2>
+        <div class="grid">
+          <article class="card">
+            <h3>1. 机械说明</h3>
+            <ul>
+              <li>标准法兰接口与安装尺寸说明</li>
+              <li>夹爪安装方案与转接说明</li>
+              <li>RealSense D435 相机支架与标定说明</li>
+            </ul>
+          </article>
+
+          <article class="card">
+            <h3>2. 软件说明</h3>
+            <ul>
+              <li>有线通信连接方案说明</li>
+              <li>SDK 初始化与状态接口说明</li>
+              <li>关节控制与 MIT 控制模式说明</li>
+              <li>Disable / Damping / 自锁 / 急停说明</li>
+            </ul>
+          </article>
+
+          <article class="card">
+            <h3>3. 描述文件与文档说明</h3>
+            <ul>
+              <li>标定后的 URDF 文件说明</li>
+              <li>SDK 与上位机使用说明</li>
+              <li>资料推进与后续补充方向</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="materials">
+        <h2>资料目录</h2>
+        <div class="download-list">
+          <a class="download-card" href="./downloads/机械臂及末端设备需求说明.md" download>
+            <strong>机械臂及末端设备说明文档</strong>
+            <span>主要说明文件，包含机械说明、软件说明、URDF 与文档说明内容。</span>
+          </a>
+          <a class="download-card" href="./downloads/资料推进说明.md" download>
+            <strong>资料推进说明</strong>
+            <span>面向团队内部的资料补充与推进方向说明，便于后续整理和分工。</span>
+          </a>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>使用建议</h2>
+        <ol class="steps">
+          <li>先阅读主说明文档，了解机械与软件说明的整体框架。</li>
+          <li>查看资料推进说明，确认当前需要优先补充的内容。</li>
+          <li>将实际文件放入下载目录后，页面即可继续扩展为完整资料库。</li>
+        </ol>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>Spark2 资料展示页 · 适用于内部说明与资料共享</p>
+    </footer>
+  </body>
+</html>
