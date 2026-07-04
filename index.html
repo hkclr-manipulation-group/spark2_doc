@@ -11,15 +11,18 @@
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <div class="lang-switch" aria-label="Language switch">
-      <button class="lang-switch__button active" data-lang="en">EN</button>
-      <button class="lang-switch__button" data-lang="zh">中文</button>
-    </div>
+    <header class="topbar">
+      <div class="topbar__brand">Spark2</div>
+      <div class="lang-switch" aria-label="Language switch">
+        <button class="lang-switch__button active" data-lang="en">EN</button>
+        <button class="lang-switch__button" data-lang="zh">中文</button>
+      </div>
+    </header>
 
     <header class="hero">
       <div class="hero__content">
-        <p class="hero__eyebrow" data-i18n="eyebrow">Spark2 Documentation Center</p>
-        <h1 data-i18n="title">Mechanical Arm and End-Effectors Documentation</h1>
+        <p class="hero__eyebrow" data-i18n="eyebrow">Documentation Center</p>
+        <h1 data-i18n="title">Spark2 Technical Documentation</h1>
         <p class="hero__text" data-i18n="intro">
           This documentation center is being continuously updated with structured materials for mechanical design, software interfaces, URDF descriptions, and supporting notes. It is intended for internal review, sharing, and gradual expansion.
         </p>
@@ -125,8 +128,8 @@
     <script>
       const translations = {
         en: {
-          eyebrow: 'Spark2 Documentation Center',
-          title: 'Mechanical Arm and End-Effectors Documentation',
+          eyebrow: 'Documentation Center',
+          title: 'Spark2 Technical Documentation',
           intro: 'This documentation center is being continuously updated with structured materials for mechanical design, software interfaces, URDF descriptions, and supporting notes. It is intended for internal review, sharing, and gradual expansion.',
           downloadMain: 'Download Main Document',
           browseMaterials: 'Browse Materials',
@@ -168,8 +171,8 @@
           footer: 'Spark2 Documentation Center · Built for ongoing documentation and shared review'
         },
         zh: {
-          eyebrow: 'Spark2 文档中心',
-          title: '机械臂及末端设备说明文档',
+          eyebrow: '文档中心',
+          title: 'Spark2 技术文档',
           intro: '该文档中心正在持续整理机械设计、软件接口、URDF 描述以及相关支持资料，适合内部评审、共享和后续扩展。',
           downloadMain: '下载主说明文档',
           browseMaterials: '查看资料目录',

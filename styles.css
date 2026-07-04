@@ -22,18 +22,32 @@ body {
   line-height: 1.65;
 }
 
-.lang-switch {
-  position: fixed;
-  top: 16px;
-  right: 18px;
+.topbar {
+  position: sticky;
+  top: 0;
   z-index: 20;
   display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 24px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+
+.topbar__brand {
+  font-weight: 700;
+  color: var(--accent-strong);
+  letter-spacing: 0.04em;
+}
+
+.lang-switch {
+  display: flex;
   gap: 8px;
-  background: rgba(255, 255, 255, 0.9);
+  background: #f8fbff;
   border: 1px solid var(--border);
   border-radius: 999px;
   padding: 6px;
-  box-shadow: var(--shadow);
 }
 
 .lang-switch__button {
