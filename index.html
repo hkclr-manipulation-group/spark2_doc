@@ -3,27 +3,27 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Spark2 资料展示页</title>
+    <title>Spark2 Documentation Center</title>
     <meta
       name="description"
-      content="Spark2 机械臂及末端设备说明文档资料展示页，便于团队查看核心说明与下载相关文件。"
+      content="A bilingual documentation center for Spark2 robotic arm and end-effector materials, supporting browsing and downloading of written documentation."
     />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <header class="hero">
       <div class="hero__content">
-        <p class="hero__eyebrow">Spark2 机械臂资料中心</p>
-        <h1>机械臂及末端设备说明文档</h1>
+        <p class="hero__eyebrow">Spark2 Documentation Center</p>
+        <h1>Mechanical Arm and End-Effectors Documentation</h1>
         <p class="hero__text">
-          这里汇总了机械说明、软件说明、URDF 与文档说明等核心内容，适合团队内部查看、分享和后续补充资料。
+          This documentation center is being continuously updated with structured materials for mechanical design, software interfaces, URDF descriptions, and supporting notes. It is intended for internal review, sharing, and gradual expansion.
         </p>
         <div class="hero__actions">
           <a class="button button--primary" href="./downloads/机械臂及末端设备需求说明.md" download>
-            下载主说明文档
+            Download Main Document
           </a>
           <a class="button button--secondary" href="#materials">
-            查看资料目录
+            Browse Materials
           </a>
         </div>
       </div>
@@ -32,78 +32,82 @@
     <main class="container">
       <section class="panel intro-panel">
         <div>
-          <h2>项目定位</h2>
+          <h2>Project Overview</h2>
           <p>
-            本页面以说明文档为核心，面向机械接口、夹爪与相机安装、通信与 SDK、URDF 描述文件以及后续资料补充工作，提供统一的展示入口。
+            This page serves as a centralized documentation hub for the robotic arm project. It gathers the current written materials, highlights the main technical topics, and provides a clear entry point for future updates and downloads.
           </p>
         </div>
         <div class="pill-group" aria-label="内容标签">
-          <span class="pill">机械说明</span>
-          <span class="pill">软件说明</span>
-          <span class="pill">URDF 说明</span>
-          <span class="pill">资料补充</span>
+          <span class="pill">In Progress</span>
+          <span class="pill">Structured Docs</span>
+          <span class="pill">Shared Materials</span>
+          <span class="pill">Expandable</span>
         </div>
       </section>
 
       <section class="section" id="requirements">
-        <h2>内容模块</h2>
+        <h2>Documentation Modules</h2>
         <div class="grid">
           <article class="card">
-            <h3>1. 机械说明</h3>
+            <h3>1. Mechanical Documentation</h3>
             <ul>
-              <li>标准法兰接口与安装尺寸说明</li>
-              <li>夹爪安装方案与转接说明</li>
-              <li>RealSense D435 相机支架与标定说明</li>
+              <li>Standard flange interface and mounting dimensions</li>
+              <li>Gripper installation and adapter guidance</li>
+              <li>RealSense D435 mounting bracket and calibration notes</li>
             </ul>
           </article>
 
           <article class="card">
-            <h3>2. 软件说明</h3>
+            <h3>2. Software Documentation</h3>
             <ul>
-              <li>有线通信连接方案说明</li>
-              <li>SDK 初始化与状态接口说明</li>
-              <li>关节控制与 MIT 控制模式说明</li>
-              <li>Disable / Damping / 自锁 / 急停说明</li>
+              <li>Wired communication connection guidance</li>
+              <li>SDK initialization and status interface notes</li>
+              <li>Joint control and MIT control mode description</li>
+              <li>Disable / Damping / self-lock / emergency stop description</li>
             </ul>
           </article>
 
           <article class="card">
-            <h3>3. 描述文件与文档说明</h3>
+            <h3>3. Model and Supporting Notes</h3>
             <ul>
-              <li>标定后的 URDF 文件说明</li>
-              <li>SDK 与上位机使用说明</li>
-              <li>资料推进与后续补充方向</li>
+              <li>Calibrated URDF file documentation</li>
+              <li>SDK and host PC usage guidance</li>
+              <li>Material progression and future expansion direction</li>
             </ul>
           </article>
         </div>
       </section>
 
       <section class="section" id="materials">
-        <h2>资料目录</h2>
+        <h2>Current Materials</h2>
         <div class="download-list">
           <a class="download-card" href="./downloads/机械臂及末端设备需求说明.md" download>
-            <strong>机械臂及末端设备说明文档</strong>
-            <span>主要说明文件，包含机械说明、软件说明、URDF 与文档说明内容。</span>
+            <strong>Mechanical Arm and End-Effectors Documentation</strong>
+            <span>Main documentation file covering mechanical, software, URDF, and documentation notes.</span>
           </a>
           <a class="download-card" href="./downloads/资料推进说明.md" download>
-            <strong>资料推进说明</strong>
-            <span>面向团队内部的资料补充与推进方向说明，便于后续整理和分工。</span>
+            <strong>Material Progress Notes</strong>
+            <span>Internal notes for materials to be prepared, prioritized, and expanded over time.</span>
+          </a>
+          <a class="download-card" href="./downloads/documentation_status.md" download>
+            <strong>Documentation Status</strong>
+            <span>Current documentation progress and next planned areas.</span>
           </a>
         </div>
       </section>
 
       <section class="section">
-        <h2>使用建议</h2>
+        <h2>How to Use This Page</h2>
         <ol class="steps">
-          <li>先阅读主说明文档，了解机械与软件说明的整体框架。</li>
-          <li>查看资料推进说明，确认当前需要优先补充的内容。</li>
-          <li>将实际文件放入下载目录后，页面即可继续扩展为完整资料库。</li>
+          <li>Start with the main documentation to understand the current structure and technical scope.</li>
+          <li>Use the material progress notes to see what is being prepared and where to focus next.</li>
+          <li>Place additional files in the downloads folder to expand the documentation library over time.</li>
         </ol>
       </section>
     </main>
 
     <footer class="footer">
-      <p>Spark2 资料展示页 · 适用于内部说明与资料共享</p>
+      <p>Spark2 Documentation Center · Built for ongoing documentation and shared review</p>
     </footer>
   </body>
 </html>
