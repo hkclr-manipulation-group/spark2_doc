@@ -11,18 +11,23 @@
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
+    <div class="lang-switch" aria-label="Language switch">
+      <button class="lang-switch__button active" data-lang="en">EN</button>
+      <button class="lang-switch__button" data-lang="zh">中文</button>
+    </div>
+
     <header class="hero">
       <div class="hero__content">
-        <p class="hero__eyebrow">Spark2 Documentation Center</p>
-        <h1>Mechanical Arm and End-Effectors Documentation</h1>
-        <p class="hero__text">
+        <p class="hero__eyebrow" data-i18n="eyebrow">Spark2 Documentation Center</p>
+        <h1 data-i18n="title">Mechanical Arm and End-Effectors Documentation</h1>
+        <p class="hero__text" data-i18n="intro">
           This documentation center is being continuously updated with structured materials for mechanical design, software interfaces, URDF descriptions, and supporting notes. It is intended for internal review, sharing, and gradual expansion.
         </p>
         <div class="hero__actions">
-          <a class="button button--primary" href="./downloads/机械臂及末端设备需求说明.md" download>
+          <a class="button button--primary" href="./downloads/机械臂及末端设备需求说明.md" download data-i18n="downloadMain">
             Download Main Document
           </a>
-          <a class="button button--secondary" href="#materials">
+          <a class="button button--secondary" href="#materials" data-i18n="browseMaterials">
             Browse Materials
           </a>
         </div>
@@ -32,90 +37,201 @@
     <main class="container">
       <section class="panel intro-panel">
         <div>
-          <h2>Project Overview</h2>
-          <p>
+          <h2 data-i18n="overviewTitle">Project Overview</h2>
+          <p data-i18n="overviewText">
             This page serves as a centralized documentation hub for the robotic arm project. It gathers the current written materials, highlights the main technical topics, and provides a clear entry point for future updates and downloads.
           </p>
         </div>
         <div class="pill-group" aria-label="内容标签">
-          <span class="pill">In Progress</span>
-          <span class="pill">Structured Docs</span>
-          <span class="pill">Shared Materials</span>
-          <span class="pill">Expandable</span>
+          <span class="pill" data-i18n="pill1">In Progress</span>
+          <span class="pill" data-i18n="pill2">Structured Docs</span>
+          <span class="pill" data-i18n="pill3">Shared Materials</span>
+          <span class="pill" data-i18n="pill4">Expandable</span>
         </div>
       </section>
 
       <section class="section" id="requirements">
-        <h2>Documentation Modules</h2>
+        <h2 data-i18n="modulesTitle">Documentation Modules</h2>
         <div class="grid">
           <article class="card">
-            <h3>1. Mechanical Documentation</h3>
+            <h3 data-i18n="module1Title">1. Mechanical Documentation</h3>
             <ul>
-              <li>Standard flange interface and mounting dimensions</li>
-              <li>Gripper installation and adapter guidance</li>
-              <li>RealSense D435 mounting bracket and calibration notes</li>
+              <li data-i18n="module1Item1">Standard flange interface and mounting dimensions</li>
+              <li data-i18n="module1Item2">Gripper installation and adapter guidance</li>
+              <li data-i18n="module1Item3">RealSense D435 mounting bracket and calibration notes</li>
             </ul>
           </article>
 
           <article class="card">
-            <h3>2. Software Documentation</h3>
+            <h3 data-i18n="module2Title">2. Software Documentation</h3>
             <ul>
-              <li>Wired communication connection guidance</li>
-              <li>SDK initialization and status interface notes</li>
-              <li>Joint control and MIT control mode description</li>
-              <li>Disable / Damping / self-lock / emergency stop description</li>
+              <li data-i18n="module2Item1">Wired communication connection guidance</li>
+              <li data-i18n="module2Item2">SDK initialization and status interface notes</li>
+              <li data-i18n="module2Item3">Joint control and MIT control mode description</li>
+              <li data-i18n="module2Item4">Disable / Damping / self-lock / emergency stop description</li>
             </ul>
           </article>
 
           <article class="card">
-            <h3>3. Model and Supporting Notes</h3>
+            <h3 data-i18n="module3Title">3. Model and Supporting Notes</h3>
             <ul>
-              <li>Calibrated URDF file documentation</li>
-              <li>SDK and host PC usage guidance</li>
-              <li>Material progression and future expansion direction</li>
+              <li data-i18n="module3Item1">Calibrated URDF file documentation</li>
+              <li data-i18n="module3Item2">SDK and host PC usage guidance</li>
+              <li data-i18n="module3Item3">Material progression and future expansion direction</li>
             </ul>
           </article>
         </div>
       </section>
 
       <section class="section" id="materials">
-        <h2>Current Materials</h2>
+        <h2 data-i18n="materialsTitle">Current Materials</h2>
         <div class="download-list">
           <a class="download-card" href="./downloads/机械臂及末端设备需求说明.md" download>
-            <strong>Mechanical Arm and End-Effectors Documentation</strong>
-            <span>Main documentation file covering mechanical, software, URDF, and documentation notes.</span>
+            <strong data-i18n="material1Title">Mechanical Arm and End-Effectors Documentation</strong>
+            <span data-i18n="material1Text">Main documentation file covering mechanical, software, URDF, and documentation notes.</span>
           </a>
           <a class="download-card" href="./downloads/资料推进说明.md" download>
-            <strong>Material Progress Notes</strong>
-            <span>Internal notes for materials to be prepared, prioritized, and expanded over time.</span>
+            <strong data-i18n="material2Title">Material Progress Notes</strong>
+            <span data-i18n="material2Text">Internal notes for materials to be prepared, prioritized, and expanded over time.</span>
           </a>
           <a class="download-card" href="./downloads/documentation_status.md" download>
-            <strong>Documentation Status</strong>
-            <span>Current documentation progress and next planned areas.</span>
+            <strong data-i18n="material3Title">Documentation Status</strong>
+            <span data-i18n="material3Text">Current documentation progress and next planned areas.</span>
           </a>
           <a class="download-card" href="./downloads/spark2_api.pdf" download>
-            <strong>API Reference</strong>
-            <span>API documentation file for Spark2 integration and development.</span>
+            <strong data-i18n="material4Title">API Reference</strong>
+            <span data-i18n="material4Text">API documentation file for Spark2 integration and development.</span>
           </a>
           <a class="download-card" href="./downloads/spark2_urdf.zip" download>
-            <strong>URDF Model Package</strong>
-            <span>URDF model package for the Spark2 robot and end-effector description.</span>
+            <strong data-i18n="material5Title">URDF Model Package</strong>
+            <span data-i18n="material5Text">URDF model package for the Spark2 robot and end-effector description.</span>
           </a>
         </div>
       </section>
 
       <section class="section">
-        <h2>How to Use This Page</h2>
+        <h2 data-i18n="usageTitle">How to Use This Page</h2>
         <ol class="steps">
-          <li>Start with the main documentation to understand the current structure and technical scope.</li>
-          <li>Use the material progress notes to see what is being prepared and where to focus next.</li>
-          <li>Place additional files in the downloads folder to expand the documentation library over time.</li>
+          <li data-i18n="usageItem1">Start with the main documentation to understand the current structure and technical scope.</li>
+          <li data-i18n="usageItem2">Use the material progress notes to see what is being prepared and where to focus next.</li>
+          <li data-i18n="usageItem3">Place additional files in the downloads folder to expand the documentation library over time.</li>
         </ol>
       </section>
     </main>
 
     <footer class="footer">
-      <p>Spark2 Documentation Center · Built for ongoing documentation and shared review</p>
+      <p data-i18n="footer">Spark2 Documentation Center · Built for ongoing documentation and shared review</p>
     </footer>
+    <script>
+      const translations = {
+        en: {
+          eyebrow: 'Spark2 Documentation Center',
+          title: 'Mechanical Arm and End-Effectors Documentation',
+          intro: 'This documentation center is being continuously updated with structured materials for mechanical design, software interfaces, URDF descriptions, and supporting notes. It is intended for internal review, sharing, and gradual expansion.',
+          downloadMain: 'Download Main Document',
+          browseMaterials: 'Browse Materials',
+          overviewTitle: 'Project Overview',
+          overviewText: 'This page serves as a centralized documentation hub for the robotic arm project. It gathers the current written materials, highlights the main technical topics, and provides a clear entry point for future updates and downloads.',
+          pill1: 'In Progress',
+          pill2: 'Structured Docs',
+          pill3: 'Shared Materials',
+          pill4: 'Expandable',
+          modulesTitle: 'Documentation Modules',
+          module1Title: '1. Mechanical Documentation',
+          module1Item1: 'Standard flange interface and mounting dimensions',
+          module1Item2: 'Gripper installation and adapter guidance',
+          module1Item3: 'RealSense D435 mounting bracket and calibration notes',
+          module2Title: '2. Software Documentation',
+          module2Item1: 'Wired communication connection guidance',
+          module2Item2: 'SDK initialization and status interface notes',
+          module2Item3: 'Joint control and MIT control mode description',
+          module2Item4: 'Disable / Damping / self-lock / emergency stop description',
+          module3Title: '3. Model and Supporting Notes',
+          module3Item1: 'Calibrated URDF file documentation',
+          module3Item2: 'SDK and host PC usage guidance',
+          module3Item3: 'Material progression and future expansion direction',
+          materialsTitle: 'Current Materials',
+          material1Title: 'Mechanical Arm and End-Effectors Documentation',
+          material1Text: 'Main documentation file covering mechanical, software, URDF, and documentation notes.',
+          material2Title: 'Material Progress Notes',
+          material2Text: 'Internal notes for materials to be prepared, prioritized, and expanded over time.',
+          material3Title: 'Documentation Status',
+          material3Text: 'Current documentation progress and next planned areas.',
+          material4Title: 'API Reference',
+          material4Text: 'API documentation file for Spark2 integration and development.',
+          material5Title: 'URDF Model Package',
+          material5Text: 'URDF model package for the Spark2 robot and end-effector description.',
+          usageTitle: 'How to Use This Page',
+          usageItem1: 'Start with the main documentation to understand the current structure and technical scope.',
+          usageItem2: 'Use the material progress notes to see what is being prepared and where to focus next.',
+          usageItem3: 'Place additional files in the downloads folder to expand the documentation library over time.',
+          footer: 'Spark2 Documentation Center · Built for ongoing documentation and shared review'
+        },
+        zh: {
+          eyebrow: 'Spark2 文档中心',
+          title: '机械臂及末端设备说明文档',
+          intro: '该文档中心正在持续整理机械设计、软件接口、URDF 描述以及相关支持资料，适合内部评审、共享和后续扩展。',
+          downloadMain: '下载主说明文档',
+          browseMaterials: '查看资料目录',
+          overviewTitle: '项目概览',
+          overviewText: '该页面作为机械臂项目的集中说明入口，汇总当前已整理的资料、主要技术主题，并为后续更新和下载提供清晰入口。',
+          pill1: '持续更新',
+          pill2: '结构化文档',
+          pill3: '共享资料',
+          pill4: '可扩展',
+          modulesTitle: '文档模块',
+          module1Title: '1. 机械说明',
+          module1Item1: '标准法兰接口与安装尺寸说明',
+          module1Item2: '夹爪安装方案与转接说明',
+          module1Item3: 'RealSense D435 安装支架与标定说明',
+          module2Title: '2. 软件说明',
+          module2Item1: '有线通信连接方案说明',
+          module2Item2: 'SDK 初始化与状态接口说明',
+          module2Item3: '关节控制与 MIT 控制模式说明',
+          module2Item4: 'Disable / Damping / 自锁 / 急停说明',
+          module3Title: '3. 模型与支持说明',
+          module3Item1: '标定后的 URDF 文件说明',
+          module3Item2: 'SDK 与上位机使用说明',
+          module3Item3: '资料推进与后续扩展方向',
+          materialsTitle: '当前资料',
+          material1Title: '机械臂及末端设备说明文档',
+          material1Text: '主要说明文件，包含机械、软件、URDF 与文档说明内容。',
+          material2Title: '资料推进说明',
+          material2Text: '用于说明当前需要补充、优先级和后续扩展的内部资料说明。',
+          material3Title: '文档进展说明',
+          material3Text: '当前文档进展情况与下一步计划。',
+          material4Title: 'API 参考资料',
+          material4Text: 'Spark2 集成与开发所需的 API 文档文件。',
+          material5Title: 'URDF 模型包',
+          material5Text: 'Spark2 机械臂及末端执行器的 URDF 模型包。',
+          usageTitle: '如何使用本页面',
+          usageItem1: '先阅读主说明文档，了解当前的整体结构与技术范围。',
+          usageItem2: '查看资料推进说明，了解当前优先补充的内容。',
+          usageItem3: '将实际文件放入下载目录，以便不断扩充文档库。',
+          footer: 'Spark2 文档中心 · 适用于持续编写文档与共享评审'
+        }
+      };
+
+      const buttons = document.querySelectorAll('.lang-switch__button');
+      const elements = document.querySelectorAll('[data-i18n]');
+
+      function applyLanguage(lang) {
+        const dict = translations[lang] || translations.en;
+        elements.forEach((el) => {
+          const key = el.getAttribute('data-i18n');
+          if (dict[key]) {
+            el.textContent = dict[key];
+          }
+        });
+        buttons.forEach((btn) => btn.classList.toggle('active', btn.getAttribute('data-lang') === lang));
+        document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+      }
+
+      buttons.forEach((btn) => {
+        btn.addEventListener('click', () => applyLanguage(btn.getAttribute('data-lang')));
+      });
+
+      applyLanguage('en');
+    </script>
   </body>
 </html>
