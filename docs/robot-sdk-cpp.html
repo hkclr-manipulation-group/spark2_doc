@@ -1,0 +1,754 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>C++ API reference · Robot SDK 1.5.0</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#reference">Skip to content</a>
+  <header class="topbar">
+    <a class="topbar__brand" href="../index.html">Spark2 <span>Docs</span></a>
+    <a class="text-link" href="../index.html#api">文档首页 / Documentation</a>
+  </header>
+  <div class="docs-layout">
+    <aside class="sidebar reference-sidebar">
+      <nav aria-label="Reference contents">
+        <p class="nav-caption">Robot SDK 1.5.0</p>
+        <a href="#quick-start">Quick start</a>
+        <a href="#return-values-and-errors">Return values and errors</a>
+        <a href="#logging">Logging</a>
+        <a href="#core-sdk-api-robot">Core SDK API (Robot)</a>
+        <a href="#configuration-configuration">Configuration (configuration/)</a>
+        <a href="#rt-connection">RT connection</a>
+        <a href="#examples-examplescpp">Examples (examples/cpp/)</a>
+        <a href="#configuration-api-configurator">Configuration API (Configurator)</a>
+        <a href="#kinematics-api-kinematics">Kinematics API (Kinematics)</a>
+        <a href="#types-robot_sdktypesh">Types (robot_sdk/types.h)</a>
+        <a href="#component-handles-and-header-organization">Component handles and header organization</a>
+      </nav>
+      <nav aria-label="Other references">
+        <a href="robot-sdk-python.html">Python API reference</a>
+        <a href="robot-sdk-teaching.html">示教、录制和轨迹导出</a>
+      </nav>
+    </aside>
+    <main class="docs-main reference-main" id="reference">
+      <article class="reference-content">
+        <p class="source-note">Robot SDK 1.5.0 · 2026-11-04</p>
+<h1 id="robot-sdk-api-c">Robot SDK API (C++)</h1>
+<p>Maintenance API boundary: TCP calibration solving, detailed diagnostics/metrics/fault callbacks and fault recovery are internal SDK features. Use the Robot Client UI for these operations. C++ trusted clients include <code>robot_internal.h</code> / <code>tcp_calibration.h</code> and link <code>robot::internal_sdk</code>; Python trusted clients import <code>robot_sdk.internal</code>. These entry points are removed from the public C++, Python, C and CLR surfaces. This is a source/API breaking change; rebuild affected consumers. Basic SystemStatus/raw flags, connection state, ordinary state/motion events, known tool offsets and stop commands remain public.</p>
+<ul>
+<li><strong>Requirements:</strong> C++17, CMake 3.21+</li>
+<li><strong>Integration:</strong> <code>find_package(robot_sdk)</code> → link <code>robot::sdk</code></li>
+<li><strong>Main header:</strong> <code>#include &quot;robot_sdk.h&quot;</code> (kinematics: <code>#include &quot;robot_kinematics/kinematics.h&quot;</code> when included in your release)</li>
+</ul>
+<h2 id="quick-start">Quick start</h2>
+<p>Link against the installed SDK prefix (set <code>CMAKE_PREFIX_PATH</code> to your release directory):</p>
+<pre><code class="language-cmake">cmake_minimum_required(VERSION 3.21)
+project(my_app LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+
+find_package(robot_sdk REQUIRED)
+
+add_executable(my_app main.cpp)
+target_link_libraries(my_app PRIVATE robot::sdk)
+</code></pre>
+<pre><code class="language-bash">cmake -S . -B build -DCMAKE_PREFIX_PATH=/path/to/sdk
+cmake --build build --parallel
+</code></pre>
+<p>On Linux, packaged releases usually resolve bundled libraries via <code>$ORIGIN</code> RPATH. On Windows, keep <code>robot_sdk.dll</code> (and any bundled DLLs) next to your executable or on <code>PATH</code>.</p>
+<p>Minimal session:</p>
+<pre><code class="language-cpp">#include &quot;robot_sdk.h&quot;
+
+robot::Robot robot;
+if (robot::RobotResult r = robot.connect(robot::RtConnectionInfo{}); !r) {
+    // handle connect failure
+}
+</code></pre>
+<p>Offline <strong>Kinematics</strong> uses the <code>configuration/</code> directory from the same SDK release. The live <strong>Robot</strong> class does not load it.</p>
+<hr>
+<h2 id="return-values-and-errors">Return values and errors</h2>
+<p>Command-style APIs (<code>connect</code>, <code>move*</code>, <code>set*</code>, teach/playback, …) return <code>RobotResult</code>.</p>
+<pre><code class="language-cpp">#include &quot;robot_sdk.h&quot;
+#include &lt;iostream&gt;
+
+robot::Robot robot;
+if (robot::RobotResult result = robot.connect(robot::RtConnectionInfo{}); !result) {
+    std::cerr &lt;&lt; &quot;connect failed: &quot; &lt;&lt; result.message
+              &lt;&lt; &quot; (&quot; &lt;&lt; robot::errorCodeToString(result.code) &lt;&lt; &quot;)\n&quot;;
+    return 1;
+}
+</code></pre>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Still throws</th>
+<th>Returns <code>RobotResult</code></th>
+</tr>
+</thead>
+<tbody><tr id="entry-1">
+<td>Invalid arguments (<code>std::invalid_argument</code>)</td>
+<td>Connection / motion / config ACK failures</td>
+</tr>
+<tr id="entry-2">
+<td>Control lost (<code>RobotException</code>, code <code>kControlLost</code>)</td>
+<td>Transport unavailable, timeout, keys load failure</td>
+</tr>
+<tr id="entry-3">
+<td>Query APIs before start (<code>getPos</code>, <code>getStatus</code>, …)</td>
+<td>Jog stream send success (execution still async)</td>
+</tr>
+</tbody></table>
+</div>
+<p><code>RobotResult</code> fields: <code>code</code> (<code>RobotErrorCode</code>), <code>message</code>, <code>ok()</code>.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th><code>RobotErrorCode</code></th>
+<th>Typical cause</th>
+</tr>
+</thead>
+<tbody><tr id="entry-4">
+<td><code>kOk</code></td>
+<td>Success</td>
+</tr>
+<tr id="entry-5">
+<td><code>kNotStarted</code></td>
+<td>Robot session not started</td>
+</tr>
+<tr id="entry-6">
+<td><code>kTransportUnavailable</code></td>
+<td>UDP client not ready</td>
+</tr>
+<tr id="entry-7">
+<td><code>kTimeout</code></td>
+<td>ACK or SrvState wait timeout</td>
+</tr>
+<tr id="entry-8">
+<td><code>kKeysLoadFailed</code></td>
+<td>Embedded SDK client keys failed to load</td>
+</tr>
+<tr id="entry-9">
+<td><code>kStartFailed</code></td>
+<td>Wrapped start/stream failure</td>
+</tr>
+<tr id="entry-10">
+<td><code>kCommandRejectedFaulted</code></td>
+<td>Robot faulted</td>
+</tr>
+<tr id="entry-11">
+<td><code>kCommandRejectedSequence</code></td>
+<td>Stale sequence ID</td>
+</tr>
+<tr id="entry-12">
+<td><code>kCommandInvalid</code></td>
+<td>Invalid command payload</td>
+</tr>
+<tr id="entry-13">
+<td><code>kInvalidClientOrSession</code></td>
+<td>Auth/session mismatch</td>
+</tr>
+<tr id="entry-14">
+<td><code>kInvalidConfig</code></td>
+<td>Invalid configuration</td>
+</tr>
+<tr id="entry-15">
+<td><code>kConfigAckFailed</code></td>
+<td>Config ACK failed</td>
+</tr>
+<tr id="entry-16">
+<td><code>kCommandAckFailed</code></td>
+<td>Command ACK failed</td>
+</tr>
+<tr id="entry-17">
+<td><code>kControlLost</code></td>
+<td>Used with <code>RobotException</code> only</td>
+</tr>
+<tr id="entry-18">
+<td><code>kMotionInterrupted</code></td>
+<td>Motion failed or robot entered ERROR while waiting</td>
+</tr>
+<tr id="entry-19">
+<td><code>kPoseNotReachable</code></td>
+<td>IK or planner could not reach target pose</td>
+</tr>
+<tr id="entry-20">
+<td><code>kRecoveryFailed</code></td>
+<td>Platform recovery request rejected</td>
+</tr>
+<tr id="entry-21">
+<td><code>kReleaseControlFailed</code></td>
+<td>Platform release-control request rejected</td>
+</tr>
+<tr id="entry-22">
+<td><code>kDisconnectFailed</code></td>
+<td>Platform <code>SdkDisconnectReq</code> rejected / timed out (local teardown still proceeds)</td>
+</tr>
+<tr id="entry-23">
+<td><code>kUnknown</code></td>
+<td>Unmapped platform status</td>
+</tr>
+</tbody></table>
+</div>
+<p>Motion APIs returning <code>kOk</code> mean the command was sent locally; they do not prove RT admission or successful planning. Use <code>waitUntilIdle()</code> / <code>moveAndWait()</code> to block until execution completes, or poll <code>getStatus()</code> manually.</p>
+<p>With an updated RT, <code>movePosAndWait()</code> / <code>waitUntilIdle()</code> return a specific execution rejection immediately after receiving matching telemetry, even if the robot remains Idle. Invalid targets, an out-of-range measured start, and a trajectory crossing a joint limit return <code>CommandInvalid</code>; a position-boundary stop returns <code>MotionInterrupted</code>. Messages include the command sequence and available arm/joint context (indices start at 0). These are motion errors, not hardware faults requiring recovery.</p>
+<p><code>MOTION_COMMAND_REJECTED</code> marks terminal rejection. Decode <code>TARGET_POS_OUT_OF_RANGE</code>, <code>MOTION_START_POS_OUT_OF_RANGE</code>, <code>MOTION_PROFILE_POS_OUT_OF_RANGE</code>, <code>MOTION_BOUNDARY_BLOCKED</code>, or <code>PLAN_INVALID_SETTING</code> from system/joint diagnostic flags for the cause. RT retains the rejection until a new command, configuration, fault/recovery transition, or control-owner change; waits match client/session/command sequence to ignore stale rejections. Nonblocking motion still returns after sending; inspect status diagnostics or call the wait API for the eventual result. Older RT versions without these flags retain the existing timeout behavior. The UDP state layout is unchanged.</p>
+<h3 id="thread-safety">Thread safety</h3>
+<p>A single <code>Robot</code> instance is <strong>not thread-safe</strong>. Call motion, query, and connection APIs from one application thread (or serialize access with your own mutex). Telemetry event handlers run on a dedicated SDK event thread — never on a transport thread — so a slow handler cannot stall telemetry reception or trip the 3 s receive watchdog; handlers for one <code>Robot</code> are serialized. <code>on_motion_done</code> runs on the thread that called <code>waitUntilIdle()</code> / <code>moveAndWait()</code>.</p>
+<p>Calling <code>disconnect()</code> from an event callback is supported: the session is closed and the RT session removed immediately, but the socket close and thread joins are deferred until the next application-thread API call (or <code>~Robot</code>) because that callback is still running on an SDK thread. Do not call blocking motion APIs or <code>connect()</code> from an event callback — poll motion state from your application thread instead.</p>
+<p><code>waitUntilIdle()</code> returns <code>RobotResult</code>, but it may still throw <code>RobotException</code> with <code>kControlLost</code> if another client takes control while waiting. Wrap calls in <code>try/catch (const RobotException&amp;)</code> when control loss must be handled gracefully.</p>
+<hr>
+<h2 id="logging">Logging</h2>
+<p>Configure via <code>robot_sdk.h</code> (no separate logging header is installed):</p>
+<pre><code class="language-cpp">#include &quot;robot_sdk.h&quot;
+
+robot::setLogLevel(robot::LogLevel::kDebug);
+robot::setLogToFile(true);              // writes logs/robot_YYYY-MM-DD.log
+robot::setLogToStderr(true);            // default true; independent of file
+</code></pre>
+<p>When file logging is enabled, the SDK creates <code>logs/</code> (cwd-relative) if needed and appends to <code>logs/robot_YYYY-MM-DD.log</code>, rotating automatically at local midnight. File lines include a timestamp prefix. Default stderr format remains <code>[Robot][INFO][Connection] ...</code>.</p>
+<hr>
+<h2 id="core-sdk-api-robot">Core SDK API (<code>Robot</code>)</h2>
+<p>Fault recovery and session setup after physical-button recovery are performed through the UI or internal SDK. Public SDK applications should handle motion errors and reconnect after recovery if their session is no longer ready. Old streams and cached motion targets are invalidated; submit a new command after setup.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>API</th>
+<th>Description</th>
+<th>Group</th>
+</tr>
+</thead>
+<tbody><tr id="entry-24">
+<td><code>Robot()</code></td>
+<td>Create SDK client for rt_control networking.</td>
+<td>constructor</td>
+</tr>
+<tr id="entry-25">
+<td><code>enumerateRobots()</code></td>
+<td>Probe the network; return <code>vector&lt;DiscoveredRobot&gt;</code>. Call before <code>connect(robot)</code> / <code>connect(info)</code>.</td>
+<td>connection</td>
+</tr>
+<tr id="entry-26">
+<td><code>connect(robot), connect(info)</code></td>
+<td>Connect to rt_control via enumerated robot or <code>RtConnectionInfo</code> (empty <code>server_ip</code> auto-discovers).</td>
+<td>connection</td>
+</tr>
+<tr id="entry-27">
+<td><code>disconnect()</code></td>
+<td>Send <code>SdkDisconnectReq</code>, wait for ACK, then stop heartbeats/transport. Next <code>connect()</code> gets a new session.</td>
+<td>connection</td>
+</tr>
+<tr id="entry-28">
+<td><code>armCount()</code>, <code>gripperCount()</code></td>
+<td>Arm / gripper slot counts from RT (0 before <code>connect()</code>).</td>
+<td>connection</td>
+</tr>
+<tr id="entry-29">
+<td><code>robotName()</code></td>
+<td>RT <code>robot_name</code> from config (empty before <code>connect()</code>).</td>
+<td>connection</td>
+</tr>
+<tr id="entry-30">
+<td><code>releaseControl()</code></td>
+<td>Release SDK control token only (session may remain until disconnect/heartbeat timeout).</td>
+<td>connection</td>
+</tr>
+<tr id="entry-31">
+<td><code>stopMotion(wait_for_command_ack=false)</code></td>
+<td>Hold at current pose via Core command; <strong>does not</strong> enter ERROR/Fault. Default: no ACK wait (fastest stop).</td>
+<td>motion</td>
+</tr>
+<tr id="entry-32">
+<td><code>triggerSafeguardStop()</code></td>
+<td>Protective software stop (<code>SdkSafeguardReq</code> on monitoring UDP <strong>8882</strong>, same as Panel abort). Latches until <code>SrvState</code> reports <code>ERROR</code>. Not hardware E-stop.</td>
+<td>safety</td>
+</tr>
+<tr id="entry-33">
+<td><code>getNetworkConfig(out_config, ack_timeout_ms=5000)</code></td>
+<td>Read robot network settings (WiFi password masked). Requires <code>connect()</code>.</td>
+<td>network</td>
+</tr>
+<tr id="entry-34">
+<td><code>setWifi(ssid, password, enable=true, ack_timeout_ms=10000)</code></td>
+<td>Connect robot WiFi to a router (STA mode).</td>
+<td>network</td>
+</tr>
+<tr id="entry-35">
+<td><code>setEthStatic(eth_ip, eth_netmask, eth_gateway, eth_dns=&quot;&quot;, ack_timeout_ms=5000)</code></td>
+<td>Set wired static IP (connection drops; reconnect with new IP).</td>
+<td>network</td>
+</tr>
+<tr id="entry-36">
+<td><code>resetNetworkConfig(ack_timeout_ms=10000)</code></td>
+<td>Restore factory network settings.</td>
+<td>network</td>
+</tr>
+<tr id="entry-37">
+<td><code>jointCount()</code>, <code>gripperJointCount()</code>, <code>jointNames()</code></td>
+<td>Runtime DOF for arm slot 0; <code>jointNames()</code> returns generic <code>j1</code>…<code>jN</code> from DOF (0 / empty before <code>connect()</code>).</td>
+<td>connection</td>
+</tr>
+<tr id="entry-38">
+<td><code>zeroJoints()</code>, <code>allEnabledMask()</code></td>
+<td>Helpers sized to <code>jointCount()</code> / <code>gripperJointCount()</code>.</td>
+<td>connection</td>
+</tr>
+<tr id="entry-39">
+<td><code>enableArmJoint(arm_state)</code></td>
+<td>Enable arm slot 0 joints; <code>JointMask</code> length must match <code>jointCount()</code>.</td>
+<td>connection</td>
+</tr>
+<tr id="entry-40">
+<td><code>waitUntilIdle(timeout_sec=30, poll_interval_sec=0.1)</code></td>
+<td>Poll until robot finishes motion or reports failure.</td>
+<td>motion completion</td>
+</tr>
+<tr id="entry-41">
+<td><code>moveAndWait(move, timeout_sec=30, poll_interval_sec=0.1)</code></td>
+<td>Run a move lambda, then wait until idle.</td>
+<td>motion completion</td>
+</tr>
+<tr id="entry-42">
+<td><code>movePosAndWait(arm_pos, v=50, t=0, ...)</code></td>
+<td>Arm-0 target arrival (1 degree) plus fresh settled Idle.</td>
+<td>motion completion</td>
+</tr>
+<tr id="entry-43">
+<td><code>goHomeAndWait(v=50, t=0, ...)</code></td>
+<td>Arm-0 zero-target arrival (1 degree) plus fresh settled Idle.</td>
+<td>motion completion</td>
+</tr>
+<tr id="entry-44">
+<td><code>setArmSmoothingMethod(method)</code></td>
+<td>Select smoothing strategy for single-target arm motion.</td>
+<td>motion mode</td>
+</tr>
+<tr id="entry-45">
+<td><code>movePos(arm_pos, v=50, t=0)</code></td>
+<td>Joint-space target for arm slot 0; <code>JointValues</code> length = <code>jointCount()</code>.</td>
+<td>manual motion</td>
+</tr>
+<tr id="entry-46">
+<td><code>movePosPath(path, vPath, tPath)</code></td>
+<td>Joint-space waypoints for arm slot 0; each vector length = <code>jointCount()</code>.</td>
+<td>manual motion</td>
+</tr>
+<tr id="entry-47">
+<td><code>moveVel(arm_vel, a=10, t=0)</code></td>
+<td>Joint-space velocity for arm slot 0; length = <code>jointCount()</code>.</td>
+<td>manual motion</td>
+</tr>
+<tr id="entry-48">
+<td><code>moveEEPoint(pose, v=50, t=0)</code></td>
+<td>Move end-effector to cartesian pose (point mode).</td>
+<td>manual motion</td>
+</tr>
+<tr id="entry-49">
+<td><code>moveEEPointPath(path, vPath, tPath)</code></td>
+<td>Move through end-effector pose waypoints (point mode).</td>
+<td>manual motion</td>
+</tr>
+<tr id="entry-50">
+<td><code>moveEELine(pose, v=50, t=0)</code></td>
+<td>Move end-effector to cartesian pose (line mode, arm slot 0).</td>
+<td>manual motion</td>
+</tr>
+<tr id="entry-51">
+<td><code>moveEELinePath(path, vPath, tPath)</code></td>
+<td>Move through end-effector pose waypoints (line mode, arm slot 0).</td>
+<td>manual motion</td>
+</tr>
+<tr id="entry-52">
+<td><code>moveToolPoint(pose, v=50, t=0)</code></td>
+<td>Move tool frame to cartesian pose (point mode).</td>
+<td>manual motion</td>
+</tr>
+<tr id="entry-53">
+<td><code>moveToolPointPath(path, vPath, tPath)</code></td>
+<td>Move tool frame through cartesian waypoints (point mode).</td>
+<td>manual motion</td>
+</tr>
+<tr id="entry-54">
+<td><code>moveToolLine(pose, v=50, t=0)</code></td>
+<td>Move tool frame to cartesian pose (line mode).</td>
+<td>manual motion</td>
+</tr>
+<tr id="entry-55">
+<td><code>moveToolLinePath(path, vPath, tPath)</code></td>
+<td>Move tool frame through cartesian waypoints (line mode).</td>
+<td>manual motion</td>
+</tr>
+<tr id="entry-56">
+<td><code>goHome(v=50, t=0)</code></td>
+<td>Move robot arm to predefined home pose.</td>
+<td>manual motion</td>
+</tr>
+<tr id="entry-57">
+<td><code>moveGripperPos(pos, v=50, t=0)</code></td>
+<td>Command gripper joints in panel units <code>[0,1]</code> (<code>0</code>=open, <code>1</code>=close); length = <code>gripperJointCount()</code>. Not soft/hard safety limits.</td>
+<td>manual motion</td>
+</tr>
+<tr id="entry-58">
+<td><code>moveGripperPosAndWait(pos, …)</code></td>
+<td><code>moveGripperPos</code> + wait on gripper feedback (RT may stay Idle during gripper-only moves).</td>
+<td>motion completion</td>
+</tr>
+<tr id="entry-59">
+<td><code>startTeach(), stopRecording(), stopTeach()</code></td>
+<td>Start drag/recording; freeze recording while allowing drag; end teaching with position hold.</td>
+<td><a href="robot-sdk-teaching.html">teaching lifecycle</a></td>
+</tr>
+<tr id="entry-60">
+<td><code>saveTrajectory(local_path)</code></td>
+<td>Export a frozen RT recording to a client-side JSON file; requires a compatible RT.</td>
+<td><a href="robot-sdk-teaching.html">teaching lifecycle</a></td>
+</tr>
+<tr id="entry-61">
+<td><code>startPlayback(), stopPlayback(), resetPlayback()</code></td>
+<td>Control playback mode lifecycle.</td>
+<td>playback mode</td>
+</tr>
+<tr id="entry-62">
+<td><code>getJointState(), getJointVel(), getJointTor()</code></td>
+<td>Arm slot 0 joint feedback with runtime-sized vectors.</td>
+<td>feedback</td>
+</tr>
+<tr id="entry-63">
+<td><code>jointPositions()</code></td>
+<td>Arm slot 0 positions only (<code>JointValues</code>, length = <code>jointCount()</code>).</td>
+<td>feedback</td>
+</tr>
+<tr id="entry-64">
+<td><code>getEEPose(), getToolPose()</code></td>
+<td>Arm slot 0 end-effector / tool cartesian pose.</td>
+<td>feedback</td>
+</tr>
+<tr id="entry-65">
+<td><code>getArmJointEnabledMask()</code></td>
+<td>Arm slot 0 per-joint enable mask (length = <code>jointCount()</code>).</td>
+<td>status</td>
+</tr>
+<tr id="entry-66">
+<td><code>getStatus(), printStatus(status)</code></td>
+<td>Read or print aggregated runtime status (<code>SystemStatus</code>). Joint diagnostics are indexed <code>[arm][joint]</code>.</td>
+<td>status</td>
+</tr>
+<tr id="entry-67">
+<td><code>getConnectionStatus()</code> / <code>isConnected()</code></td>
+<td>SDK-owned connection state; autonomous 3000 ms RT receive timeout.</td>
+<td>diagnostics</td>
+</tr>
+<tr id="entry-68">
+<td><code>getConfigurator()</code></td>
+<td>Access RT configuration subsystem for arm slot 0.</td>
+<td>subsystems</td>
+</tr>
+</tbody></table>
+</div>
+<p>A single <code>Robot</code> session owns the UDP connection. On dual-arm robots, the convenience methods directly on <code>Robot</code> target <strong>arm slot 0</strong>; use public <code>arm(index)</code> handles for other arms and <code>dualArm()</code> (Python: <code>dual_arm()</code>) for synchronized motion. Use <code>armCount()</code> / <code>gripperCount()</code> after <code>connect()</code> to inspect topology; <code>waitUntilIdle()</code> waits for the whole robot.</p>
+<h2 id="configuration-configuration">Configuration (<code>configuration/</code>)</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Built-in model registry + URDF/meshes</strong></td>
+<td>Offline kinematics via standalone <code>Kinematics(config_prefix_path)</code></td>
+</tr>
+<tr>
+<td><strong>SDK built-in HMAC keys</strong></td>
+<td>UDP message authentication (client_id 0 + 10003)</td>
+</tr>
+<tr>
+<td><strong>SDK built-in defaults</strong></td>
+<td>Protocol ports, receive timing, default motion parameters</td>
+</tr>
+<tr>
+<td><strong><code>RtConnectionInfo</code> / <code>enumerateRobots()</code></strong></td>
+<td>Target RT server IP</td>
+</tr>
+<tr>
+<td><strong>RT <code>SdkConfigRes</code> after <code>connect()</code></strong></td>
+<td>Authoritative limits, modes, tool offset (<code>Configurator</code> getters)</td>
+</tr>
+</tbody></table>
+</div>
+<p><code>config.yaml</code> is optional for <strong>Kinematics</strong> only. <strong>Robot</strong> does not load it. See <code>BREAKING_CONFIG.md</code>.</p>
+<p>Recommended connection patterns:</p>
+<pre><code class="language-cpp">// Auto-discover rt_control on the network (default empty server_ip).
+Robot robot;
+if (RobotResult result = robot.connect(RtConnectionInfo{}); !result) { /* ... */ }
+
+// Known RT server IP.
+Robot robot;
+if (RobotResult result = robot.connect(RtConnectionInfo::to(&quot;192.168.1.10&quot;)); !result) { /* ... */ }
+
+// Enumerate multiple robots, then connect to one.
+Robot robot;
+auto robots = robot.enumerateRobots();
+if (!robots.empty()) {
+    if (RobotResult result = robot.connect(robots.front()); !result) { /* ... */ }
+}
+</code></pre>
+<h2 id="rt-connection">RT connection</h2>
+<p><code>RtConnectionInfo</code> exposes only <code>server_ip</code> in the public API. UDP ports are fixed SDK defaults.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr id="entry-69">
+<td><code>server_ip</code></td>
+<td><code>&quot;&quot;</code> (auto-discover)</td>
+<td>RT server IP; set via <code>RtConnectionInfo::to(ip)</code> or <code>connect(info)</code></td>
+</tr>
+</tbody></table>
+</div>
+<p>Helper: <code>RtConnectionInfo::to(server_ip)</code> — connect to a known RT host.</p>
+<p>Other protocol settings (heartbeat port, telemetry port, client id, multicast probe) are fixed SDK defaults and are not configurable in the public API.</p>
+<p>Pass connection settings to <code>connect(info)</code> or <code>connect(robot)</code> when starting a session.</p>
+<p>Path APIs accept either a velocity path (<code>v</code>) or a time path (<code>t</code>) matching the waypoint count. When only <code>t</code> is supplied, the SDK fills each waypoint with the default speed ratio (50%).</p>
+<p>Motion speed <code>v</code> / <code>a</code> is in <code>[0, 100]</code> percent and maps to <code>interpolation_speed_ratio</code> (<code>v / 100</code>). Per RT planner: <code>v &gt; 0</code> sets an explicit ratio; <code>v = 0</code> sends ratio <code>0</code> and <strong>keeps the current speed ratio unchanged</strong> (not max speed). Use <code>v = 100</code> for full speed.</p>
+<p>Normal motion commands return after the UDP command is sent; they do not wait for a command ACK. Configuration changes still wait for their ACK. Use <code>movePosAndWait</code>, <code>goHomeAndWait</code>, or <code>waitUntilIdle</code> when completion confirmation is required.</p>
+<h2 id="examples-examplescpp">Examples (<code>examples/cpp/</code>)</h2>
+<p>Public motion examples use shared helpers in <code>example_common.h</code>:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Helper</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr id="entry-70">
+<td><code>robotIpFromArgs(argc, argv)</code></td>
+<td>Parse optional <code>[IP]</code> or <code>--ip IP</code> from the command line</td>
+</tr>
+<tr id="entry-71">
+<td><code>connectToRobot(robot, ip)</code></td>
+<td>Connect via <code>RtConnectionInfo::to(ip)</code> when <code>ip</code> is non-empty, else <code>requireFirstRobot()</code></td>
+</tr>
+<tr id="entry-72">
+<td><code>requireFirstRobot()</code></td>
+<td>Enumerate and return the first robot (exits if none found)</td>
+</tr>
+<tr id="entry-73">
+<td><code>ROBOT_CHECK(result, context)</code></td>
+<td>Print and return 1 on failure</td>
+</tr>
+</tbody></table>
+</div>
+<pre><code class="language-bash">cmake -S /path/to/prefix/examples/cpp -B build -DCMAKE_PREFIX_PATH=/path/to/prefix
+cmake --build build --parallel
+./build/move_point
+./build/move_point 192.168.1.10
+./build/network_config --ip 192.168.1.10
+./build/network_config --ip 192.168.1.10 --set-eth 192.168.2.100 255.255.255.0 192.168.2.1
+</code></pre>
+<p>Typical example flow:</p>
+<pre><code class="language-cpp">#include &quot;example_common.h&quot;
+
+using namespace robot;
+using namespace robot_example;
+
+int main(int argc, char* argv[]) {
+    Robot robot;
+    ROBOT_CHECK(connectToRobot(robot, robotIpFromArgs(argc, argv)), &quot;connect&quot;);
+    // ...
+}
+</code></pre>
+<p>See <code>connection_options.cpp</code> for auto-discover, fixed IP, and enumerate-first patterns. Kinematics examples under <code>calculate_kinematics.cpp</code> do not connect to rt_control.</p>
+<h2 id="configuration-api-configurator">Configuration API (<code>Configurator</code>)</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>API</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr id="entry-74">
+<td><code>setToolOffset(offset), setArmPosLimits(limit), setArmVelLimits(limit), setGripperPosLimits(limit)</code></td>
+<td>Set configuration; return <code>RobotResult</code>.</td>
+</tr>
+<tr id="entry-75">
+<td><code>getToolOffset(), getArmPosLimits(), getArmVelLimits(), getGripperPosLimits()</code></td>
+<td>Read active configuration values.</td>
+</tr>
+<tr id="entry-76">
+<td><code>getArmMaxPos(), getArmMaxVel()</code></td>
+<td>Get hardware max position/velocity constraints.</td>
+</tr>
+<tr id="entry-77">
+<td><code>getArmMaxPosJump(), getArmMaxVelJump()</code></td>
+<td>Get anti-jump protection limits.</td>
+</tr>
+<tr id="entry-78">
+<td><code>getArmMaxPosFollowError(), getArmMaxVelFollowError(), getArmMaxTorFollowError()</code></td>
+<td>Get following-error thresholds.</td>
+</tr>
+<tr id="entry-79">
+<td><code>getGripperMaxPos()</code></td>
+<td>Get gripper hardware max range.</td>
+</tr>
+</tbody></table>
+</div>
+<h2 id="kinematics-api-kinematics">Kinematics API (<code>Kinematics</code>)</h2>
+<p>Standalone class — not part of <code>Robot</code>. Requires a configuration directory with URDF/meshes.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>API</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr id="entry-80">
+<td><code>Kinematics(config_prefix_path, model_id=&quot;&quot;)</code></td>
+<td>Load built-in model from URDF under <code>config_prefix_path</code>; optional <code>model_id</code> overrides <code>config.yaml</code> / default <code>spark2_v2</code>.</td>
+</tr>
+<tr id="entry-81">
+<td><code>jointCount()</code></td>
+<td>Active DOF for the loaded kinematics model.</td>
+</tr>
+<tr id="entry-82">
+<td><code>forwardKinematics(arm_pos)</code></td>
+<td>Compute cartesian pose from joint state (length = <code>jointCount()</code>).</td>
+</tr>
+<tr id="entry-83">
+<td><code>inverseKinematics(ee_pose, arm_pos)</code></td>
+<td>Solve joint state for a target cartesian pose; returns <code>RobotResult</code> and updates <code>arm_pos</code> on success.</td>
+</tr>
+<tr id="entry-84">
+<td><code>eulerToQuaternion(euler)</code></td>
+<td>Convert intrinsic XYZ Euler angles to quaternion.</td>
+</tr>
+<tr id="entry-85">
+<td><code>quaternionToEuler(quat)</code></td>
+<td>Convert quaternion to intrinsic XYZ Euler angles.</td>
+</tr>
+<tr id="entry-86">
+<td><code>eeToToolPose(ee_pose, tool_offset)</code></td>
+<td>Transform end-effector pose into tool pose.</td>
+</tr>
+<tr id="entry-87">
+<td><code>toolToEEPose(tool_pose, tool_offset)</code></td>
+<td>Transform tool pose into end-effector pose.</td>
+</tr>
+</tbody></table>
+</div>
+<h2 id="types-robot_sdktypesh">Types (<code>robot_sdk/types.h</code>)</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Type / Enum</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr id="entry-88">
+<td><code>DiscoveredRobot</code></td>
+<td>Result of <code>enumerateRobots()</code> (<code>server_ip</code>, <code>robot_name</code>, …).</td>
+</tr>
+<tr id="entry-89">
+<td><code>NetworkConfig</code></td>
+<td>Network settings from <code>getNetworkConfig()</code> (<code>eth_ip</code>, <code>wifi_ssid</code>, …).</td>
+</tr>
+<tr id="entry-90">
+<td><code>Position</code>, <code>Quaternion</code>, <code>EulerAngle</code></td>
+<td>Cartesian position, orientation, and intrinsic XYZ Euler angles.</td>
+</tr>
+<tr id="entry-91">
+<td><code>Pose</code></td>
+<td>Cartesian pose = <code>Position</code> + <code>Quaternion</code> orientation.</td>
+</tr>
+<tr id="entry-92">
+<td><code>JointValues</code>, <code>JointMask</code>, <code>JointState</code></td>
+<td>Variable-length joint vectors, enable masks, and arm+gripper feedback. Length must match <code>jointCount()</code> / <code>gripperJointCount()</code> after connect. Prefer <code>zeroJoints()</code> / <code>makeJointValues()</code>.</td>
+</tr>
+<tr id="entry-93">
+<td><code>JointLimitValues</code>, <code>JointDiagnosticFlags</code></td>
+<td>Variable-length per-joint limit pairs and diagnostic flag vectors.</td>
+</tr>
+<tr id="entry-94">
+<td><code>makeJointValues(count, fill=0)</code>, <code>makeJointMask(count, enabled=true)</code></td>
+<td>Build vectors sized to runtime DOF.</td>
+</tr>
+<tr id="entry-95">
+<td><code>makeJointLimitValues(count, fill={-90,90})</code>, <code>makeJointDiagnosticFlags(count, fill=0)</code></td>
+<td>Build limit/diagnostic vectors sized to runtime DOF.</td>
+</tr>
+<tr id="entry-96">
+<td><code>Path&lt;T&gt;</code></td>
+<td>Waypoint sequence (<code>std::vector&lt;T&gt;</code>).</td>
+</tr>
+<tr id="entry-97">
+<td><code>JointLimits&lt;T&gt;</code></td>
+<td>Per-joint min/max limits for arm and gripper.</td>
+</tr>
+<tr id="entry-98">
+<td><code>SmoothingMethod</code></td>
+<td><code>kLinear</code>, <code>kCos</code>, <code>kCubic</code>, <code>kQuintic</code>, <code>kQuinticPath</code>, <code>kNone</code>.</td>
+</tr>
+<tr id="entry-99">
+<td><code>RobotState</code></td>
+<td><code>kStartup</code>, <code>kIdle</code>, <code>kMoving</code>, <code>kSettling</code>, <code>kError</code>, <code>kRecovery</code>, <code>kShutdown</code>.</td>
+</tr>
+<tr id="entry-100">
+<td><code>PlanResult</code></td>
+<td><code>kSuccess</code>, <code>kPoseNotReachable</code>, <code>kLinearPathFailed</code>.</td>
+</tr>
+<tr id="entry-101">
+<td><code>SystemStatus</code></td>
+<td>Aggregated status: <code>robot_state</code>, <code>plan_result</code>, <code>robot_diagnostic_flags</code>, <code>arm_size</code>, <code>gripper_size</code>, per-arm/per-gripper joint diagnostic flags (<code>[arm][joint]</code>).</td>
+</tr>
+<tr id="entry-102">
+<td><code>DiagnosticFlags</code></td>
+<td>Bitmask flags for target/actuator saturation, jump limits, boundary safety, planner events, and hardware/tracking faults.</td>
+</tr>
+</tbody></table>
+</div>
+<p>The timeout latches until reconnect. Late packets cannot revive an expired session. Control ownership and operation errors do not disconnect a session that continues receiving valid RT packets. Timeout stops SDK transport loops and wakes waiting operations; thread joining and socket cleanup are performed inside the SDK on disconnect, reconnect, or destruction. Status freshness remains separate from connection liveness.</p>
+<h2 id="component-handles-and-header-organization">Component handles and header organization</h2>
+<p><code>#include &lt;robot_sdk.h&gt;</code> includes Robot, Arm and DualArm. For selective inclusion,
+use <code>robot_sdk/robot.h</code> with <code>robot_sdk/arm.h</code> and/or <code>robot_sdk/dual_arm.h</code>.
+Robot owns the connection, whole-robot state/events and stop commands. Arm owns
+per-arm motion, feedback, enabling and configuration. DualArm owns synchronized
+arm-0/arm-1 motion and <code>enableArmJoint(mask0, mask1)</code> in one configuration packet.</p>
+<pre><code class="language-cpp">#include &lt;robot_sdk.h&gt;
+robot::Robot robot;
+// Check connect() before obtaining a DualArm handle.
+// robot.connect(robot::RtConnectionInfo::to(&quot;192.168.1.10&quot;));
+// robot.arm(0).movePos(q0);
+// robot.dualArm().movePosAndWait(q0, q1);
+</code></pre>
+<p>Both arms share v/t; joint vectors match each arm&#39;s runtime DOF. Path waypoint
+counts must match. Sequential per-arm commands do not synchronize both arms.
+Acquiring dualArm() throws RobotException before connection or with fewer than
+two arms; motion methods return RobotResult. Handles borrow the Robot: do not
+outlive it, and reacquire them after moving the Robot or reconnecting.
+Existing Robot motion, feedback and gripper convenience methods retain their
+arm-0 semantics (including goHome); setArmSmoothingMethod still applies to all
+arms. Use dualArm().goHome() for synchronized two-arm homing.</p>
+<p>Future supported Head/Waist/Base/Gripper controls should get separate typed
+headers and Robot accessors. No placeholder API or new hardware support is
+introduced here. Existing gripper methods remain on Robot and Arm. Generic
+Component/CommandFrame/ControlStream and maintenance APIs remain internal.
+C and CLR APIs retain their current scope; these new component handles are
+published for C++ and Python.</p>
+<p>For component scope, language capabilities, explicit timing adapters and the exact
+completion guarantees, see <a href="../index.html#quick-start">the user guide</a>.</p>
+<p>The numeric v/t overloads of joint move/home methods that now accept MotionOptions
+are deprecated. Prefer the same method name with a MotionOptions argument. Existing
+numeric calls remain compatible until a future major release; see the user guide
+for the exact scope and migration examples.</p>
+<p class="source-note">For the user guide and other bundled documentation, see <code>docs/</code> in the <a href="../index.html#quick-start">SDK archive</a>.</p>
+      </article>
+    </main>
+  </div>
+</body>
+</html>

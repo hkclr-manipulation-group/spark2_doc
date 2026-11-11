@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Spark2 C++ API reference: Spark2, Configurator, Kinematics and types."><title>C++ API reference · Spark2</title><link rel="stylesheet" href="../styles.css"></head>
+<body><a class="skip-link" href="#reference">Skip to content</a><header class="topbar"><a class="topbar__brand" href="../index.html">Spark2 <span>Docs</span></a><a class="text-link" href="../index.html#api">文档首页 / Documentation</a></header>
+<div class="docs-layout"><aside class="sidebar"><nav aria-label="Reference contents"><p class="nav-caption">C++ API reference</p><a href="#repository-structure">Repository Structure</a><a href="#core-sdk-api-spark2">Core SDK API (Spark2)</a><a href="#configuration-api-configurator">Configuration API (Configurator)</a><a href="#kinematics-api-kinematics">Kinematics API (Kinematics)</a><a href="#types-types-h">Types (types.h)</a></nav><nav aria-label="Other references"><p class="nav-caption">More</p><a href="python-api.html">Python API →</a><a href="../downloads/spark2_sdk_cpp.md" download>Download Markdown ↓</a></nav></aside>
+<main class="docs-main reference-main" id="reference"><article class="reference-content"><a class="back-link" href="../index.html#api">← 文档首页 / Documentation</a><h1>C++ API reference</h1>
+<ul>
+<li>Language: C++20</li>
+</ul>
+<h2 id="repository-structure">Repository Structure</h2>
+<p>The pre-built C++ distribution lives under <code>spark2_cpp_dist/</code> in the Spark2 SDK repository. Shared robot configuration is bundled at the repository root in <code>configuration/</code>.</p>
+<pre><code class="language-text">spark2_sdk/
+|-- configuration/              (robot configuration)
+|-- spark2_cpp_dist/
+|   |-- CMakelists.txt          
+|   |-- spark2_sdk_cpp.md
+|   |-- include/
+|   |   |-- spark2.h            (main SDK class API)
+|   |   |-- configurator.h      (configuration API)
+|   |   |-- kinematics.h        (kinematics API)
+|   |   `-- types.h             (shared data types/enums)
+|   |-- lib/                    (pre-built shared library)
+|   `-- examples/
+|       |-- move_point.cpp
+|       |-- move_path.cpp
+|       |-- teach_and_playback.cpp
+|       |-- set_configuration.cpp
+|       `-- calculate_kinematics.cpp
+</code></pre>
+<h2 id="core-sdk-api-spark2">Core SDK API (<code>Spark2</code>)</h2>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>Description</th>
+<th>Group</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Spark2(config_prefix_path=&quot;&quot;)</code></td>
+<td>Create SDK client; optional path prefix for configuration files.</td>
+<td>constructor</td>
+</tr>
+<tr>
+<td><code>start(), stop()</code></td>
+<td>Start or stop arm runtime session.</td>
+<td>connection</td>
+</tr>
+<tr>
+<td><code>enableArmJoint(arm_state)</code></td>
+<td>Enable arm joints by 6-element boolean state array.</td>
+<td>connection</td>
+</tr>
+<tr>
+<td><code>setArmSmoothingMethod(method)</code></td>
+<td>Select smoothing strategy for single-target arm motion.</td>
+<td>motion mode</td>
+</tr>
+<tr>
+<td><code>movePos(arm_pos, v=50, t=0)</code></td>
+<td>Command joint-space target position.</td>
+<td>manual motion</td>
+</tr>
+<tr>
+<td><code>movePosPath(path, vPath, tPath)</code></td>
+<td>Command sequence of joint-space waypoints.</td>
+<td>manual motion</td>
+</tr>
+<tr>
+<td><code>moveVel(arm_vel, a=10, t=0)</code></td>
+<td>Command joint-space velocity.</td>
+<td>manual motion</td>
+</tr>
+<tr>
+<td><code>moveEEPoint(pose, v=50, t=0)</code></td>
+<td>Move end-effector to cartesian pose (point mode).</td>
+<td>manual motion</td>
+</tr>
+<tr>
+<td><code>moveEEPointPath(path, vPath, tPath)</code></td>
+<td>Move through end-effector pose waypoints (point mode).</td>
+<td>manual motion</td>
+</tr>
+<tr>
+<td><code>moveEELine(pose, v=50, t=0)</code></td>
+<td>Move end-effector to cartesian pose (line mode).</td>
+<td>manual motion</td>
+</tr>
+<tr>
+<td><code>moveEELinePath(path, vPath, tPath)</code></td>
+<td>Move through end-effector pose waypoints (line mode).</td>
+<td>manual motion</td>
+</tr>
+<tr>
+<td><code>moveToolPoint(pose, v=50, t=0)</code></td>
+<td>Move tool frame to cartesian pose (point mode).</td>
+<td>manual motion</td>
+</tr>
+<tr>
+<td><code>moveToolPointPath(path, vPath, tPath)</code></td>
+<td>Move tool frame through cartesian waypoints (point mode).</td>
+<td>manual motion</td>
+</tr>
+<tr>
+<td><code>moveToolLine(pose, v=50, t=0)</code></td>
+<td>Move tool frame to cartesian pose (line mode).</td>
+<td>manual motion</td>
+</tr>
+<tr>
+<td><code>moveToolLinePath(path, vPath, tPath)</code></td>
+<td>Move tool frame through cartesian waypoints (line mode).</td>
+<td>manual motion</td>
+</tr>
+<tr>
+<td><code>goHome(v=50, t=0)</code></td>
+<td>Move robot arm to predefined home pose.</td>
+<td>manual motion</td>
+</tr>
+<tr>
+<td><code>moveGripperPos(pos, v=50, t=0)</code></td>
+<td>Command gripper joint position.</td>
+<td>manual motion</td>
+</tr>
+<tr>
+<td><code>startTeach(), stopTeach()</code></td>
+<td>Enter or exit teach mode.</td>
+<td>teach mode</td>
+</tr>
+<tr>
+<td><code>startPlayback(), stopPlayback(), resetPlayback()</code></td>
+<td>Control playback mode lifecycle.</td>
+<td>playback mode</td>
+</tr>
+<tr>
+<td><code>getPos(), getVel(), getTor()</code></td>
+<td>Read current joint position, velocity, and torque.</td>
+<td>feedback</td>
+</tr>
+<tr>
+<td><code>getEEPose(), getToolPose()</code></td>
+<td>Read current end-effector/tool cartesian pose.</td>
+<td>feedback</td>
+</tr>
+<tr>
+<td><code>isArmJointEnabled()</code></td>
+<td>Read per-joint arm enable state.</td>
+<td>status</td>
+</tr>
+<tr>
+<td><code>getStatus(), printStatus(status)</code></td>
+<td>Read or print aggregated runtime status (<code>SystemStatus</code>).</td>
+<td>status</td>
+</tr>
+<tr>
+<td><code>getConfigurator(), getKinematics()</code></td>
+<td>Access specialized subsystems for config/kinematics.</td>
+<td>subsystems</td>
+</tr>
+</tbody></table>
+<h2 id="configuration-api-configurator">Configuration API (<code>Configurator</code>)</h2>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>setToolOffset(offset), getToolOffset()</code></td>
+<td>Set or get tool frame offset from end-effector frame.</td>
+</tr>
+<tr>
+<td><code>setArmPosLimits(limit), setArmVelLimits(limit)</code></td>
+<td>Set joint position/velocity safety limits.</td>
+</tr>
+<tr>
+<td><code>getArmPosLimits(), getArmVelLimits()</code></td>
+<td>Get active joint safety limits.</td>
+</tr>
+<tr>
+<td><code>getArmMaxPos(), getArmMaxVel()</code></td>
+<td>Get hardware max position/velocity constraints.</td>
+</tr>
+<tr>
+<td><code>getArmMaxPosJump(), getArmMaxVelJump()</code></td>
+<td>Get anti-jump protection limits.</td>
+</tr>
+<tr>
+<td><code>getArmMaxPosFollowError(), getArmMaxVelFollowError(), getArmMaxTorFollowError()</code></td>
+<td>Get following-error thresholds.</td>
+</tr>
+<tr>
+<td><code>setGripperPosLimits(limit), getGripperPosLimits()</code></td>
+<td>Set or get gripper position limits.</td>
+</tr>
+<tr>
+<td><code>getGripperMaxPos()</code></td>
+<td>Get gripper hardware max range.</td>
+</tr>
+</tbody></table>
+<h2 id="kinematics-api-kinematics">Kinematics API (<code>Kinematics</code>)</h2>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>forwardKinematics(arm_pos)</code></td>
+<td>Compute cartesian pose from 6-joint arm state.</td>
+</tr>
+<tr>
+<td><code>inverseKinematics(ee_pose, arm_pos)</code></td>
+<td>Solve 6-joint arm state for a target cartesian pose; returns <code>bool</code>.</td>
+</tr>
+<tr>
+<td><code>eulerToQuaternion(euler)</code></td>
+<td>Convert intrinsic XYZ Euler angles to quaternion.</td>
+</tr>
+<tr>
+<td><code>quaternionToEuler(quat)</code></td>
+<td>Convert quaternion to intrinsic XYZ Euler angles.</td>
+</tr>
+<tr>
+<td><code>eeToToolPose(ee_pose, tool_offset)</code></td>
+<td>Transform end-effector pose into tool pose.</td>
+</tr>
+<tr>
+<td><code>toolToEEPose(tool_pose, tool_offset)</code></td>
+<td>Transform tool pose into end-effector pose.</td>
+</tr>
+</tbody></table>
+<h2 id="types-types-h">Types (<code>types.h</code>)</h2>
+<table>
+<thead>
+<tr>
+<th>Type / Enum</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Position</code>, <code>Quaternion</code>, <code>EulerAngle</code></td>
+<td>Cartesian position, orientation, and intrinsic XYZ Euler angles.</td>
+</tr>
+<tr>
+<td><code>Pose</code></td>
+<td>Cartesian pose = <code>Position</code> + <code>Quaternion</code> orientation.</td>
+</tr>
+<tr>
+<td><code>JointState6f / JointState1f</code></td>
+<td>6-DOF arm joint values / 1-DOF gripper value.</td>
+</tr>
+<tr>
+<td><code>JointState6b / JointState1b</code></td>
+<td>6-DOF arm enable flags / gripper enable flag.</td>
+</tr>
+<tr>
+<td><code>JointState6u / JointState1u</code></td>
+<td>Per-joint diagnostic bitmasks for arm and gripper.</td>
+</tr>
+<tr>
+<td><code>Path&lt;T&gt;</code></td>
+<td>Waypoint sequence (<code>std::vector&lt;T&gt;</code>).</td>
+</tr>
+<tr>
+<td><code>RobotJointStatef / RobotJointStateb</code></td>
+<td>Combined arm+gripper state in float or bool forms.</td>
+</tr>
+<tr>
+<td><code>JointLimits&lt;T&gt;</code>, <code>JointLimits6f / JointLimits1f</code></td>
+<td>Per-joint min/max limits for arm and gripper.</td>
+</tr>
+<tr>
+<td><code>SmoothingMethod</code></td>
+<td><code>kLinear</code>, <code>kCos</code>, <code>kCubic</code>, <code>kQuintic</code>, <code>kNone</code>.</td>
+</tr>
+<tr>
+<td><code>RobotState</code></td>
+<td><code>kStartup</code>, <code>kIdle</code>, <code>kMoving</code>, <code>kSettling</code>, <code>kError</code>, <code>kRecovery</code>, <code>kShutdown</code>.</td>
+</tr>
+<tr>
+<td><code>PlanResult</code></td>
+<td><code>kSuccess</code>, <code>kPoseNotReachable</code>, <code>kLinearPathFailed</code>.</td>
+</tr>
+<tr>
+<td><code>SystemStatus</code></td>
+<td>Aggregated status: <code>robot_state</code>, <code>plan_result</code>, <code>robot_diagnostic_flags</code>, per-joint diagnostic flags.</td>
+</tr>
+<tr>
+<td><code>DiagnosticFlags</code></td>
+<td>Bitmask flags for target/actuator saturation, jump limits, boundary safety, planner events, and hardware/tracking faults.</td>
+</tr>
+</tbody></table>
+<p class="source-note">Source: <a href="https://github.com/hkclr-manipulation-group/spark2_sdk/blob/ece73fa7e3bb2b2a8bf8c5d25adcd41f15b8b35b/spark2_cpp_dist/spark2_sdk_cpp.md">Spark2 SDK · ece73fa</a>. Method signatures correspond to this SDK snapshot; use the documentation matching your installed distribution.</p></article></main></div></body></html>

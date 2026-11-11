@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+*.pyo
+
+# Original Robot Client bundle contains local runtime logs.
+/downloads/robot_client-v1.1.0-windows-x86_64.zip

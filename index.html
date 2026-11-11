@@ -1,240 +1,151 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Spark2 Documentation Center</title>
-    <meta
-      name="description"
-      content="A bilingual documentation center for Spark2 robotic arm and end-effector materials, supporting browsing and downloading of written documentation."
-    />
-    <link rel="stylesheet" href="./styles.css" />
-  </head>
-  <body>
-    <header class="topbar">
-      <div class="topbar__brand">Spark2</div>
-      <div class="lang-switch" aria-label="Language switch">
-        <button class="lang-switch__button active" data-lang="en">EN</button>
-        <button class="lang-switch__button" data-lang="zh">中文</button>
-      </div>
-    </header>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Spark2 installation and operation, Robot SDK 1.5.0, C++ and Python API reference, URDF models and downloads.">
+  <title>Spark2 · Documentation</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main" data-i18n="skip">Skip to content</a>
+  <header class="topbar">
+    <a class="topbar__brand" href="./index.html">Spark2 <span data-i18n="docs">Docs</span></a>
+    <div class="lang-switch" role="group" aria-label="Language">
+      <button type="button" class="lang-switch__button active" data-lang="en" aria-pressed="true">EN</button>
+      <button type="button" class="lang-switch__button" data-lang="zh" aria-pressed="false">中文</button>
+    </div>
+  </header>
 
-    <header class="hero">
-      <div class="hero__content">
-        <p class="hero__eyebrow" data-i18n="eyebrow">Documentation Center</p>
-        <h1 data-i18n="title">Spark2 Technical Documentation</h1>
-        <p class="hero__text" data-i18n="intro">
-          This documentation center is being continuously updated with structured materials for mechanical design, software interfaces, URDF descriptions, and supporting notes. It is intended for internal review, sharing, and gradual expansion.
-        </p>
+  <div class="docs-layout">
+    <aside class="sidebar">
+      <label class="search-label" for="doc-search" data-i18n="searchLabel">Search documentation</label>
+      <input id="doc-search" type="search" placeholder="API, Python, URDF…" autocomplete="off" aria-controls="search-results">
+      <nav aria-label="Documentation">
+        <p class="nav-caption" data-i18n="onThisPage">On this page</p>
+        <a href="#quick-start" data-i18n="quickStart">Quick start</a>
+        <a href="#api" data-i18n="api">SDK &amp; API reference</a>
+        <a href="#installation" data-i18n="installation">Installation &amp; operation</a>
+        <a href="#models" data-i18n="models">URDF models</a>
+        <a href="#downloads" data-i18n="downloads">Downloads</a>
+      </nav>
+      <nav class="reference-nav" aria-label="API reference">
+        <p class="nav-caption" data-i18n="reference">Robot SDK 1.5.0</p>
+        <a href="./docs/robot-sdk-cpp.html">C++ <span aria-hidden="true">↗</span></a>
+        <a href="./docs/robot-sdk-python.html">Python <span aria-hidden="true">↗</span></a>
+      </nav>
+    </aside>
+
+    <main id="main" class="docs-main">
+      <header class="hero">
+        <h1 data-i18n="title">Spark2 documentation</h1>
+        <p class="hero__text" data-i18n="intro">Set up your robot, install the SDK, or download models and manuals.</p>
         <div class="hero__actions">
-          <a class="button button--primary" href="./downloads/机械臂及末端设备需求说明.md" download data-i18n="downloadMain">
-            Download Main Document
-          </a>
-          <a class="button button--secondary" href="#materials" data-i18n="browseMaterials">
-            Browse Materials
-          </a>
+          <a class="button button--primary" href="#quick-start" data-i18n="getStarted">Get started →</a>
+          <a class="button button--secondary" href="#api" data-i18n="readApi">Read the API reference</a>
         </div>
+      </header>
+
+      <section id="search-results" class="search-results" hidden aria-label="Search results">
+        <h2 data-i18n="searchResults">Search results</h2>
+        <p id="search-status" role="status" aria-live="polite"></p>
+        <ul id="search-list"></ul>
+      </section>
+
+      <div class="document-content">
+        <section id="quick-start" class="doc-section">
+          <h2 data-i18n="quickStart">Quick start</h2>
+
+          <p data-i18n="startIntro">Download Robot SDK 1.5.0 for your platform and extract the full archive. Run the commands below from the extracted package directory.</p>
+          <div class="download-list">
+            <a href="./downloads/robot_sdk-1.5.0-20261104-152730-win_x64-msvc2019_v142.zip" download><span><strong data-i18n="windows">Robot SDK for Windows x64</strong><small>1.5.0 · MSVC 2019 v142 · ZIP</small></span><span aria-hidden="true">↓</span></a>
+            <a href="./downloads/robot_sdk-1.5.0-20261104-165106-linux_x86_64-gcc_linux.tar.gz" download><span><strong data-i18n="linux">Robot SDK for Linux x86_64</strong><small>1.5.0 · GCC · TAR.GZ</small></span><span aria-hidden="true">↓</span></a>
+          </div>
+          <div class="setup-grid">
+            <article>
+              <h3>Python</h3>
+              <p data-i18n="wheel">Choose a wheel from bindings/python/ matching your CPython version. This example uses 3.10 on Windows.</p>
+              <pre><code>python -m pip install "./bindings/python/robot_sdk-1.5.0-cp310-cp310-win_amd64.whl"
+python -c "from robot_sdk import Robot; print('Robot SDK import OK')"</code></pre>
+              <p data-i18n="versions">Bundled wheels: Windows 3.9–3.12 · Linux 3.9–3.13.</p>
+            </article>
+            <article>
+              <h3>C++ <span class="meta">C++17 · CMake 3.21+</span></h3>
+              <p data-i18n="cppBuild">Build the packaged examples. Set CMAKE_PREFIX_PATH to the extracted SDK root.</p>
+              <pre><code>cmake -S examples/cpp -B build -DCMAKE_PREFIX_PATH="&lt;sdk-root&gt;"
+cmake --build build --config Release --parallel</code></pre>
+              <p data-i18n="dll">On Windows, put the SDK bin/ directory on PATH before running an example.</p>
+            </article>
+          </div>
+          <p class="note" data-i18n="runNote">Read docs/USER_GUIDE.md in the archive before running a motion example. Pass the intended RT server IP when more than one robot is on the LAN. With no IP, examples connect to the first discovered robot.</p>
+          <p data-i18n="kinematicsNote">For offline kinematics, the SDK guide requires a model directory with arm_v2.urdf and its meshes. Obtain the matching model files separately for these two builds.</p>
+        </section>
+
+        <section id="api" class="doc-section">
+          <h2 data-i18n="api">SDK &amp; API reference</h2>
+
+          <p data-i18n="apiIntro">Use these references for the Robot API in the 1.5.0 downloads. Each reference covers connections, results, motion, feedback and configuration.</p>
+          <div class="reference-grid">
+            <a class="reference-card" href="./docs/robot-sdk-cpp.html">
+              <span class="reference-card__label">Robot SDK 1.5.0</span>
+              <strong data-i18n="cppApi">C++ API reference</strong>
+            </a>
+        <a class="reference-card" href="./docs/robot-sdk-python.html">
+              <span class="reference-card__label">Robot SDK 1.5.0</span>
+              <strong data-i18n="pythonApi">Python API reference</strong>
+            </a>
+          </div>
+          <p><a href="./docs/robot-sdk-teaching.html" data-i18n="teaching">Teaching, recording and trajectory export (Chinese)</a></p>
+          <h3 id="legacy-api" data-i18n="legacyApi">Spark2 class documentation</h3>
+          <p data-i18n="legacyNote">For projects using the Spark2 class, consult the V1.2 manuals and the existing online reference for your language.</p>
+          <ul class="legacy-links">
+            <li>C++ · <a href="./docs/cpp-api.html" data-i18n="legacyCpp">Online reference</a> · <a href="./downloads/Spark2_SDK_User_Manual_Cpp.pdf" data-i18n="cppManual">V1.2 PDF</a> · <a href="./downloads/spark2_sdk_cpp.md" download>Markdown</a></li>
+            <li>Python · <a href="./docs/python-api.html" data-i18n="legacyPy">Online reference</a> · <a href="./downloads/Spark2_SDK_User_Manual_Python.pdf" data-i18n="pyManual">V1.2 PDF</a> · <a href="./downloads/spark2_sdk_python.md" download>Markdown</a></li>
+          </ul>
+        </section>
+
+        <section id="installation" class="doc-section">
+          <h2 data-i18n="installation">Installation &amp; operation</h2>
+
+          <p data-i18n="hardwareText">Read the Spark2 user manual before installing or operating the arm. It covers safety, mounting, power and cabling, coordinate systems, teaching and fault recovery.</p>
+          <div class="download-list">
+            <a href="./downloads/Sparkt2_User_Manual.pdf#page=1"><span><strong data-i18n="hardwareManual">Spark2 user manual</strong><small>PDF · V1.1 · 2026-11-09</small></span><span aria-hidden="true">↗</span></a>
+            <a href="./downloads/Sparkt2_User_Manual.pdf#page=5"><span><strong data-i18n="mounting">Mechanical and electrical installation</strong><small>PDF · §3</small></span><span aria-hidden="true">↗</span></a>
+            <a href="./downloads/Sparkt2_User_Manual.pdf#page=12"><span><strong data-i18n="drawings">Arm and flange dimensional drawings</strong><small>PDF · §8</small></span><span aria-hidden="true">↗</span></a>
+          </div>
+        </section>
+
+        <section id="models" class="doc-section">
+          <h2 data-i18n="models">URDF models</h2>
+
+          <p data-i18n="modelIntro">The archive contains URDF and Xacro assemblies with and without the gripper, meshes and an MDH diagram. Keep the extracted directory structure so the mesh paths resolve.</p>
+          <ul>
+            <li><span data-i18n="bareArm">Arm only</span> · <code>spark2/assembly/no_gripper/spark2_stl.urdf</code> · <code>spark2_obj.urdf</code></li>
+            <li><span data-i18n="withGripper">Arm with gripper</span> · <code>spark2/assembly/gripper/spark2_stl.urdf</code></li>
+          </ul>
+          <div class="download-list">
+            <a href="./downloads/spark2_urdf.zip" download><span><strong data-i18n="downloadModel">Spark2 URDF package</strong><small>ZIP · 4.5 MB</small></span><span aria-hidden="true">↓</span></a>
+          </div>
+        </section>
+
+        <section id="downloads" class="doc-section">
+          <h2 data-i18n="downloads">Downloads</h2>
+
+          <div class="download-list">
+            <a href="./downloads/robot_client-v1.1.0-windows-x86_64-public.zip" download><span><strong data-i18n="client">Robot Client for Windows x64</strong><small>1.1.0 · ZIP</small></span><span aria-hidden="true">↓</span></a>
+          </div>
+          <p class="client-instructions" data-i18n="clientRun">Extract the archive and open run.bat from the extracted folder to launch Robot Client.</p>
+          <ul class="resource-links">
+            <li><a href="#quick-start" data-i18n="sdkLinks">Robot SDK 1.5.0 packages</a></li>
+            <li><a href="./downloads/Sparkt2_User_Manual.pdf" download data-i18n="manualDownload">Spark2 user manual (PDF)</a></li>
+            <li><a href="#models" data-i18n="modelLinks">URDF package</a></li>
+            <li><a href="#legacy-api" data-i18n="referenceLinks">Spark2 C++ and Python manuals and Markdown</a></li>
+          </ul>
+        </section>
       </div>
-    </header>
-
-    <main class="container">
-      <section class="panel intro-panel">
-        <div>
-          <h2 data-i18n="overviewTitle">Project Overview</h2>
-          <p data-i18n="overviewText">
-            This page serves as a centralized documentation hub for the robotic arm project. It gathers the current written materials, highlights the main technical topics, and provides a clear entry point for future updates and downloads.
-          </p>
-        </div>
-        <div class="pill-group" aria-label="内容标签">
-          <span class="pill" data-i18n="pill1">In Progress</span>
-          <span class="pill" data-i18n="pill2">Structured Docs</span>
-          <span class="pill" data-i18n="pill3">Shared Materials</span>
-          <span class="pill" data-i18n="pill4">Expandable</span>
-        </div>
-      </section>
-
-      <section class="section" id="requirements">
-        <h2 data-i18n="modulesTitle">Documentation Modules</h2>
-        <div class="grid">
-          <article class="card">
-            <h3 data-i18n="module1Title">1. Mechanical Documentation</h3>
-            <ul>
-              <li data-i18n="module1Item1">Standard flange interface and mounting dimensions</li>
-              <li data-i18n="module1Item2">Gripper installation and adapter guidance</li>
-              <li data-i18n="module1Item3">RealSense D435 mounting bracket and calibration notes</li>
-            </ul>
-          </article>
-
-          <article class="card">
-            <h3 data-i18n="module2Title">2. Software Documentation</h3>
-            <ul>
-              <li data-i18n="module2Item1">Wired communication connection guidance</li>
-              <li data-i18n="module2Item2">SDK initialization and status interface notes</li>
-              <li data-i18n="module2Item3">Joint control and MIT control mode description</li>
-              <li data-i18n="module2Item4">Disable / Damping / self-lock / emergency stop description</li>
-            </ul>
-          </article>
-
-          <article class="card">
-            <h3 data-i18n="module3Title">3. Model and Supporting Notes</h3>
-            <ul>
-              <li data-i18n="module3Item1">Calibrated URDF file documentation</li>
-              <li data-i18n="module3Item2">SDK and host PC usage guidance</li>
-              <li data-i18n="module3Item3">Material progression and future expansion direction</li>
-            </ul>
-          </article>
-        </div>
-      </section>
-
-      <section class="section" id="materials">
-        <h2 data-i18n="materialsTitle">Current Materials</h2>
-        <div class="download-list">
-          <a class="download-card" href="./downloads/机械臂及末端设备需求说明.md" download>
-            <strong data-i18n="material1Title">Mechanical Arm and End-Effectors Documentation</strong>
-            <span data-i18n="material1Text">Main documentation file covering mechanical, software, URDF, and documentation notes.</span>
-          </a>
-          <a class="download-card" href="./downloads/资料推进说明.md" download>
-            <strong data-i18n="material2Title">Material Progress Notes</strong>
-            <span data-i18n="material2Text">Internal notes for materials to be prepared, prioritized, and expanded over time.</span>
-          </a>
-          <a class="download-card" href="./downloads/documentation_status.md" download>
-            <strong data-i18n="material3Title">Documentation Status</strong>
-            <span data-i18n="material3Text">Current documentation progress and next planned areas.</span>
-          </a>
-          <a class="download-card" href="./downloads/spark2_api.pdf" download>
-            <strong data-i18n="material4Title">API Reference</strong>
-            <span data-i18n="material4Text">API documentation file for Spark2 integration and development.</span>
-          </a>
-          <a class="download-card" href="./downloads/spark2_urdf.zip" download>
-            <strong data-i18n="material5Title">URDF Model Package</strong>
-            <span data-i18n="material5Text">URDF model package for the Spark2 robot and end-effector description.</span>
-          </a>
-        </div>
-      </section>
-
-      <section class="section">
-        <h2 data-i18n="usageTitle">How to Use This Page</h2>
-        <ol class="steps">
-          <li data-i18n="usageItem1">Start with the main documentation to understand the current structure and technical scope.</li>
-          <li data-i18n="usageItem2">Use the material progress notes to see what is being prepared and where to focus next.</li>
-          <li data-i18n="usageItem3">Place additional files in the downloads folder to expand the documentation library over time.</li>
-        </ol>
-      </section>
+      <footer class="footer">Spark2 <span data-i18n="footer">Documentation</span></footer>
     </main>
-
-    <footer class="footer">
-      <p data-i18n="footer">Spark2 Documentation Center · Built for ongoing documentation and shared review</p>
-    </footer>
-    <script>
-      const translations = {
-        en: {
-          eyebrow: 'Documentation Center',
-          title: 'Spark2 Technical Documentation',
-          intro: 'This documentation center is being continuously updated with structured materials for mechanical design, software interfaces, URDF descriptions, and supporting notes. It is intended for internal review, sharing, and gradual expansion.',
-          downloadMain: 'Download Main Document',
-          browseMaterials: 'Browse Materials',
-          overviewTitle: 'Project Overview',
-          overviewText: 'This page serves as a centralized documentation hub for the robotic arm project. It gathers the current written materials, highlights the main technical topics, and provides a clear entry point for future updates and downloads.',
-          pill1: 'In Progress',
-          pill2: 'Structured Docs',
-          pill3: 'Shared Materials',
-          pill4: 'Expandable',
-          modulesTitle: 'Documentation Modules',
-          module1Title: '1. Mechanical Documentation',
-          module1Item1: 'Standard flange interface and mounting dimensions',
-          module1Item2: 'Gripper installation and adapter guidance',
-          module1Item3: 'RealSense D435 mounting bracket and calibration notes',
-          module2Title: '2. Software Documentation',
-          module2Item1: 'Wired communication connection guidance',
-          module2Item2: 'SDK initialization and status interface notes',
-          module2Item3: 'Joint control and MIT control mode description',
-          module2Item4: 'Disable / Damping / self-lock / emergency stop description',
-          module3Title: '3. Model and Supporting Notes',
-          module3Item1: 'Calibrated URDF file documentation',
-          module3Item2: 'SDK and host PC usage guidance',
-          module3Item3: 'Material progression and future expansion direction',
-          materialsTitle: 'Current Materials',
-          material1Title: 'Mechanical Arm and End-Effectors Documentation',
-          material1Text: 'Main documentation file covering mechanical, software, URDF, and documentation notes.',
-          material2Title: 'Material Progress Notes',
-          material2Text: 'Internal notes for materials to be prepared, prioritized, and expanded over time.',
-          material3Title: 'Documentation Status',
-          material3Text: 'Current documentation progress and next planned areas.',
-          material4Title: 'API Reference',
-          material4Text: 'API documentation file for Spark2 integration and development.',
-          material5Title: 'URDF Model Package',
-          material5Text: 'URDF model package for the Spark2 robot and end-effector description.',
-          usageTitle: 'How to Use This Page',
-          usageItem1: 'Start with the main documentation to understand the current structure and technical scope.',
-          usageItem2: 'Use the material progress notes to see what is being prepared and where to focus next.',
-          usageItem3: 'Place additional files in the downloads folder to expand the documentation library over time.',
-          footer: 'Spark2 Documentation Center · Built for ongoing documentation and shared review'
-        },
-        zh: {
-          eyebrow: '文档中心',
-          title: 'Spark2 技术文档',
-          intro: '该文档中心正在持续整理机械设计、软件接口、URDF 描述以及相关支持资料，适合内部评审、共享和后续扩展。',
-          downloadMain: '下载主说明文档',
-          browseMaterials: '查看资料目录',
-          overviewTitle: '项目概览',
-          overviewText: '该页面作为机械臂项目的集中说明入口，汇总当前已整理的资料、主要技术主题，并为后续更新和下载提供清晰入口。',
-          pill1: '持续更新',
-          pill2: '结构化文档',
-          pill3: '共享资料',
-          pill4: '可扩展',
-          modulesTitle: '文档模块',
-          module1Title: '1. 机械说明',
-          module1Item1: '标准法兰接口与安装尺寸说明',
-          module1Item2: '夹爪安装方案与转接说明',
-          module1Item3: 'RealSense D435 安装支架与标定说明',
-          module2Title: '2. 软件说明',
-          module2Item1: '有线通信连接方案说明',
-          module2Item2: 'SDK 初始化与状态接口说明',
-          module2Item3: '关节控制与 MIT 控制模式说明',
-          module2Item4: 'Disable / Damping / 自锁 / 急停说明',
-          module3Title: '3. 模型与支持说明',
-          module3Item1: '标定后的 URDF 文件说明',
-          module3Item2: 'SDK 与上位机使用说明',
-          module3Item3: '资料推进与后续扩展方向',
-          materialsTitle: '当前资料',
-          material1Title: '机械臂及末端设备说明文档',
-          material1Text: '主要说明文件，包含机械、软件、URDF 与文档说明内容。',
-          material2Title: '资料推进说明',
-          material2Text: '用于说明当前需要补充、优先级和后续扩展的内部资料说明。',
-          material3Title: '文档进展说明',
-          material3Text: '当前文档进展情况与下一步计划。',
-          material4Title: 'API 参考资料',
-          material4Text: 'Spark2 集成与开发所需的 API 文档文件。',
-          material5Title: 'URDF 模型包',
-          material5Text: 'Spark2 机械臂及末端执行器的 URDF 模型包。',
-          usageTitle: '如何使用本页面',
-          usageItem1: '先阅读主说明文档，了解当前的整体结构与技术范围。',
-          usageItem2: '查看资料推进说明，了解当前优先补充的内容。',
-          usageItem3: '将实际文件放入下载目录，以便不断扩充文档库。',
-          footer: 'Spark2 文档中心 · 适用于持续编写文档与共享评审'
-        }
-      };
-
-      const buttons = document.querySelectorAll('.lang-switch__button');
-      const elements = document.querySelectorAll('[data-i18n]');
-
-      function applyLanguage(lang) {
-        const dict = translations[lang] || translations.en;
-        elements.forEach((el) => {
-          const key = el.getAttribute('data-i18n');
-          if (dict[key]) {
-            el.textContent = dict[key];
-          }
-        });
-        buttons.forEach((btn) => btn.classList.toggle('active', btn.getAttribute('data-lang') === lang));
-        document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
-      }
-
-      buttons.forEach((btn) => {
-        btn.addEventListener('click', () => applyLanguage(btn.getAttribute('data-lang')));
-      });
-
-      applyLanguage('en');
-    </script>
-  </body>
+  </div>
+</body>
 </html>

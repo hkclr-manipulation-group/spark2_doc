@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Spark2 Python API reference: Spark2, Configurator, Kinematics and types."><title>Python API reference · Spark2</title><link rel="stylesheet" href="../styles.css"></head>
+<body><a class="skip-link" href="#reference">Skip to content</a><header class="topbar"><a class="topbar__brand" href="../index.html">Spark2 <span>Docs</span></a><a class="text-link" href="../index.html#api">文档首页 / Documentation</a></header>
+<div class="docs-layout"><aside class="sidebar"><nav aria-label="Reference contents"><p class="nav-caption">Python API reference</p><a href="#repository-structure">Repository Structure</a><a href="#core-sdk-api-spark2">Core SDK API (Spark2)</a><a href="#configuration-api-configurator">Configuration API (Configurator)</a><a href="#kinematics-api-kinematics">Kinematics API (Kinematics)</a><a href="#types-types-py">Types (types.py)</a></nav><nav aria-label="Other references"><p class="nav-caption">More</p><a href="cpp-api.html">C++ API →</a><a href="../downloads/spark2_sdk_python.md" download>Download Markdown ↓</a></nav></aside>
+<main class="docs-main reference-main" id="reference"><article class="reference-content"><a class="back-link" href="../index.html#api">← 文档首页 / Documentation</a><h1>Python API reference</h1>
+<ul>
+<li>Language: Python 3.8+</li>
+<li>Backend: C++ SDK exposed via <code>_spark2_sdk_cpp</code> (pybind11)</li>
+</ul>
+<h2 id="repository-structure">Repository Structure</h2>
+<p>The installable Python package lives under <code>spark2_python_dist/</code> in the Spark2 SDK repository. Shared robot configuration is bundled at the repository root in <code>configuration/</code>.</p>
+<pre><code class="language-text">spark2_sdk/
+|-- configuration/                (robot configuration)
+|-- spark2_python_dist/
+|   |-- pyproject.toml
+|   |-- spark2_sdk_python.md
+|   |-- spark2_sdk/
+|   |   |-- __init__.py           
+|   |   |-- spark2.py             (main SDK class API)
+|   |   |-- configurator.py       (configuration API)
+|   |   |-- kinematics.py         (kinematics API)
+|   |   |-- types.py              (shared data types/enums)
+|   |   |-- convertor.py          (internal C++/Python type conversion)
+|   |   `-- lib/                  (pre-built shared library)
+|   `-- examples/
+|       |-- utils.py              (example helpers)
+|       |-- move_point.py
+|       |-- move_path.py
+|       |-- teach_and_playback.py
+|       |-- set_configuration.py
+|       `-- calculate_kinematics.py
+</code></pre>
+<p>Platform and toolchain subdirectories under <code>lib/</code> are selected automatically at import time based on OS, CPU architecture, and (on Windows) the MSVC runtime version.</p>
+<h2 id="core-sdk-api-spark2">Core SDK API (<code>Spark2</code>)</h2>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>Description</th>
+<th>Group</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Spark2(config_prefix_path=&quot;&quot;)</code></td>
+<td>Create SDK client; optional path prefix for configuration files.</td>
+<td>constructor</td>
+</tr>
+<tr>
+<td><code>start(), stop()</code></td>
+<td>Start or stop arm runtime session.</td>
+<td>connection</td>
+</tr>
+<tr>
+<td><code>enable_arm_joint(arm_state)</code></td>
+<td>Enable arm joints by 6-element boolean state (<code>JointState6b</code>).</td>
+<td>connection</td>
+</tr>
+<tr>
+<td><code>set_arm_smoothing_method(method)</code></td>
+<td>Select smoothing strategy for single-target arm motion.</td>
+<td>motion mode</td>
+</tr>
+<tr>
+<td><code>move_pos(arm_pos, v=50, t=0.0)</code></td>
+<td>Command joint-space target position.</td>
+<td>manual motion</td>
+</tr>
+<tr>
+<td><code>move_pos_path(path, v_path, t_path)</code></td>
+<td>Command sequence of joint-space waypoints.</td>
+<td>manual motion</td>
+</tr>
+<tr>
+<td><code>move_vel(arm_vel, a=50, t=0.0)</code></td>
+<td>Command joint-space velocity.</td>
+<td>manual motion</td>
+</tr>
+<tr>
+<td><code>move_ee_point(pose, v=50, t=0.0)</code></td>
+<td>Move end-effector to cartesian pose (point mode).</td>
+<td>manual motion</td>
+</tr>
+<tr>
+<td><code>move_ee_point_path(path, v_path, t_path)</code></td>
+<td>Move through end-effector pose waypoints (point mode).</td>
+<td>manual motion</td>
+</tr>
+<tr>
+<td><code>move_ee_line(pose, v=50, t=0.0)</code></td>
+<td>Move end-effector to cartesian pose (line mode).</td>
+<td>manual motion</td>
+</tr>
+<tr>
+<td><code>move_ee_line_path(path, v_path, t_path)</code></td>
+<td>Move through end-effector pose waypoints (line mode).</td>
+<td>manual motion</td>
+</tr>
+<tr>
+<td><code>move_tool_point(pose, v=50, t=0.0)</code></td>
+<td>Move tool frame to cartesian pose (point mode).</td>
+<td>manual motion</td>
+</tr>
+<tr>
+<td><code>move_tool_point_path(path, v_path, t_path)</code></td>
+<td>Move tool frame through cartesian waypoints (point mode).</td>
+<td>manual motion</td>
+</tr>
+<tr>
+<td><code>move_tool_line(pose, v=50, t=0.0)</code></td>
+<td>Move tool frame to cartesian pose (line mode).</td>
+<td>manual motion</td>
+</tr>
+<tr>
+<td><code>move_tool_line_path(path, v_path, t_path)</code></td>
+<td>Move tool frame through cartesian waypoints (line mode).</td>
+<td>manual motion</td>
+</tr>
+<tr>
+<td><code>go_home(v=50, t=0.0)</code></td>
+<td>Move robot arm to predefined home pose.</td>
+<td>manual motion</td>
+</tr>
+<tr>
+<td><code>move_gripper_pos(pos, v=50, t=0.0)</code></td>
+<td>Command gripper joint position.</td>
+<td>manual motion</td>
+</tr>
+<tr>
+<td><code>start_teach(), stop_teach()</code></td>
+<td>Enter or exit teach mode.</td>
+<td>teach mode</td>
+</tr>
+<tr>
+<td><code>start_playback(), stop_playback(), reset_playback()</code></td>
+<td>Control playback mode lifecycle.</td>
+<td>playback mode</td>
+</tr>
+<tr>
+<td><code>get_pos(), get_vel(), get_tor()</code></td>
+<td>Read current joint position, velocity, and torque.</td>
+<td>feedback</td>
+</tr>
+<tr>
+<td><code>get_ee_pose(), get_tool_pose()</code></td>
+<td>Read current end-effector/tool cartesian pose.</td>
+<td>feedback</td>
+</tr>
+<tr>
+<td><code>is_arm_joint_enabled()</code></td>
+<td>Read per-joint arm enable state.</td>
+<td>status</td>
+</tr>
+<tr>
+<td><code>get_status(), print_status(status)</code></td>
+<td>Read or print aggregated runtime status (<code>SystemStatus</code>).</td>
+<td>status</td>
+</tr>
+<tr>
+<td><code>get_configurator(), get_kinematics()</code></td>
+<td>Access specialized subsystems for config/kinematics.</td>
+<td>subsystems</td>
+</tr>
+</tbody></table>
+<h2 id="configuration-api-configurator">Configuration API (<code>Configurator</code>)</h2>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>set_tool_offset(offset), get_tool_offset()</code></td>
+<td>Set or get tool frame offset from end-effector frame.</td>
+</tr>
+<tr>
+<td><code>set_arm_pos_limits(limit), set_arm_vel_limits(limit)</code></td>
+<td>Set joint position/velocity safety limits.</td>
+</tr>
+<tr>
+<td><code>get_arm_pos_limits(), get_arm_vel_limits()</code></td>
+<td>Get active joint safety limits.</td>
+</tr>
+<tr>
+<td><code>get_arm_max_pos(), get_arm_max_vel()</code></td>
+<td>Get hardware max position/velocity constraints.</td>
+</tr>
+<tr>
+<td><code>get_arm_max_pos_jump(), get_arm_max_vel_jump()</code></td>
+<td>Get anti-jump protection limits.</td>
+</tr>
+<tr>
+<td><code>get_arm_max_pos_follow_error(), get_arm_max_vel_follow_error(), get_arm_max_tor_follow_error()</code></td>
+<td>Get following-error thresholds.</td>
+</tr>
+<tr>
+<td><code>set_gripper_pos_limits(limit), get_gripper_pos_limits()</code></td>
+<td>Set or get gripper position limits.</td>
+</tr>
+<tr>
+<td><code>get_gripper_max_pos()</code></td>
+<td>Get gripper hardware max range.</td>
+</tr>
+</tbody></table>
+<h2 id="kinematics-api-kinematics">Kinematics API (<code>Kinematics</code>)</h2>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>forward_kinematics(arm_pos)</code></td>
+<td>Compute cartesian pose from 6-joint arm state.</td>
+</tr>
+<tr>
+<td><code>inverse_kinematics(ee_pose, arm_pos)</code></td>
+<td>Solve 6-joint arm state for a target cartesian pose; returns <code>(bool, JointState6f)</code>.</td>
+</tr>
+<tr>
+<td><code>euler_to_quaternion(euler)</code></td>
+<td>Convert intrinsic XYZ Euler angles to quaternion.</td>
+</tr>
+<tr>
+<td><code>quaternion_to_euler(quat)</code></td>
+<td>Convert quaternion to intrinsic XYZ Euler angles.</td>
+</tr>
+<tr>
+<td><code>ee_to_tool_pose(ee_pose, tool_offset)</code></td>
+<td>Transform end-effector pose into tool pose.</td>
+</tr>
+<tr>
+<td><code>tool_to_ee_pose(tool_pose, tool_offset)</code></td>
+<td>Transform tool pose into end-effector pose.</td>
+</tr>
+</tbody></table>
+<h2 id="types-types-py">Types (<code>types.py</code>)</h2>
+<table>
+<thead>
+<tr>
+<th>Type / Enum</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Position</code>, <code>Quaternion</code>, <code>EulerAngle</code></td>
+<td>Cartesian position, orientation, and intrinsic XYZ Euler angles.</td>
+</tr>
+<tr>
+<td><code>Pose</code></td>
+<td>Cartesian pose = <code>Position</code> + <code>Quaternion</code> orientation.</td>
+</tr>
+<tr>
+<td><code>JointState6f</code> / <code>JointState1f</code></td>
+<td>6-DOF arm joint values / 1-DOF gripper value.</td>
+</tr>
+<tr>
+<td><code>JointState6b</code> / <code>JointState1b</code></td>
+<td>6-DOF arm enable flags / gripper enable flag.</td>
+</tr>
+<tr>
+<td><code>JointState6u</code> / <code>JointState1u</code></td>
+<td>Per-joint diagnostic bitmasks for arm and gripper.</td>
+</tr>
+<tr>
+<td><code>List[T]</code></td>
+<td>Waypoint sequence (e.g. <code>List[Pose]</code>, <code>List[JointState6f]</code>).</td>
+</tr>
+<tr>
+<td><code>RobotJointStatef</code> / <code>RobotJointStateb</code></td>
+<td>Combined arm+gripper state in float or bool forms.</td>
+</tr>
+<tr>
+<td><code>JointLimits6f</code> / <code>JointLimits1f</code></td>
+<td>Per-joint min/max limits for arm and gripper (<code>LimitPair</code> per joint).</td>
+</tr>
+<tr>
+<td><code>SmoothingMethod</code></td>
+<td><code>LINEAR</code>, <code>COS</code>, <code>CUBIC</code>, <code>QUINTIC</code>, <code>NONE</code>.</td>
+</tr>
+<tr>
+<td><code>RobotState</code></td>
+<td><code>STARTUP</code>, <code>IDLE</code>, <code>MOVING</code>, <code>SETTLING</code>, <code>ERROR</code>, <code>RECOVERY</code>, <code>SHUTDOWN</code>.</td>
+</tr>
+<tr>
+<td><code>PlanResult</code></td>
+<td><code>SUCCESS</code>, <code>POSE_NOT_REACHABLE</code>, <code>LINEAR_PATH_FAILED</code>.</td>
+</tr>
+<tr>
+<td><code>SystemStatus</code></td>
+<td>Aggregated status: <code>robot_state</code>, <code>plan_result</code>, <code>robot_diagnostic_flags</code>, per-joint diagnostic flags.</td>
+</tr>
+<tr>
+<td><code>DiagnosticFlags</code></td>
+<td>Bitmask flags for target/actuator saturation, jump limits, boundary safety, planner events, and hardware/tracking faults.</td>
+</tr>
+</tbody></table>
+<p class="source-note">Source: <a href="https://github.com/hkclr-manipulation-group/spark2_sdk/blob/ece73fa7e3bb2b2a8bf8c5d25adcd41f15b8b35b/spark2_python_dist/spark2_sdk_python.md">Spark2 SDK · ece73fa</a>. Method signatures correspond to this SDK snapshot; use the documentation matching your installed distribution.</p></article></main></div></body></html>

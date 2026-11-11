@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>示教、录制和轨迹导出 · Robot SDK 1.5.0</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#reference">Skip to content</a>
+  <header class="topbar">
+    <a class="topbar__brand" href="../index.html">Spark2 <span>Docs</span></a>
+    <a class="text-link" href="../index.html#api">文档首页 / Documentation</a>
+  </header>
+  <div class="docs-layout">
+    <aside class="sidebar reference-sidebar">
+      <nav aria-label="Reference contents">
+        <p class="nav-caption">Robot SDK 1.5.0</p>
+      </nav>
+      <nav aria-label="Other references">
+        <a href="robot-sdk-cpp.html">C++ API reference</a>
+        <a href="robot-sdk-python.html">Python API reference</a>
+      </nav>
+    </aside>
+    <main class="docs-main reference-main" id="reference">
+      <article class="reference-content">
+        <p class="source-note">Robot SDK 1.5.0 · 2026-11-04</p>
+<h1 id="示教录制和轨迹导出">示教、录制和轨迹导出</h1>
+<pre><code class="language-cpp">robot.startTeach().throwIfError();       // 开始拖动示教并录制
+robot.stopRecording().throwIfError();    // 停止录制，仍可拖动
+robot.stopTeach().throwIfError();        // 退出示教，提交当前位置保持
+robot.saveTrajectory(&quot;teach.json&quot;).throwIfError(); // 导出到客户端文件
+</code></pre>
+<p>Python 对应 <code>start_teach()</code>、<code>stop_recording()</code>、<code>stop_teach()</code>、<code>save_trajectory(local_path)</code>，结果用 <code>raise_for_error()</code> 检查。C API 新增 <code>robot_session_stop_recording</code> 和 <code>robot_session_save_trajectory</code>；CLR 对应 <code>StopRecording()</code> 和 <code>SaveTrajectory(localPath)</code>。</p>
+<p><code>startTeach()</code> 设置所选机械臂为重力补偿模式并开始采样。上一段录制停止后，再次开始会替换原录制；录制期间重复开始沿用 RT 当前录制。<code>startTeach()</code> 与 <code>stopRecording()</code> 都等待命令 ACK 和对应的执行反馈。<code>stopRecording()</code> 不改变控制模式、开启回放或写文件，也不是暂停/续录接口。旧 RT 如果完全没有命令关联字段，则等待连续三帧新反馈作为兼容处理，无法严格关联执行结果；新版 RT 使用命令序号确认。</p>
+<p><code>stopTeach()</code> 可以直接结束正在进行的录制，也可以在 <code>stopRecording()</code> 后调用。它切换到关节位置目标模式，保留配置的底层位置/速度执行模式，在收到新反馈后发送短时保持命令并等待 ACK。配置被拒绝、反馈超时或保持命令被拒绝都会返回失败。ACK 表示命令接受，不代表实机已经静止；调用者如需等运动状态结束，可继续 <code>waitUntilIdle()</code>。力矩到位置控制的机械过渡仍由 RT 和驱动实现，需要实机验证停止平顺性。</p>
+<p>停止采样后，继续拖动不会改变已冻结的数据。<code>saveTrajectory(local_path)</code> 可在仍处于拖动模式时调用，也可在结束示教后调用，不会触发运动或改变录制状态。未停止录制返回 <code>MotionInterrupted</code>，无录制数据返回 <code>CommandInvalid</code>，RT 不支持该 RPC 返回 <code>Unsupported</code>；无 TCP 通道返回 <code>TransportUnavailable</code>。冻结的含义是已停止采样、在内存中保留，不代表已保存到磁盘。</p>
+<p><code>Robot</code> 方法等价于 <code>arm(0)</code>。<code>arm(i).saveTrajectory(path)</code> 导出指定机械臂的数据。现有 UDP <code>teaching_cmd</code> 是整机共享字段，开始/停止采样会影响所有机械臂；当前协议不支持各臂独立录制会话。<code>Arm::stopTeach()</code> 只为所选机械臂配置位置保持，其他机械臂保留各自模式，因此双臂同时示教时需分别退出两臂的拖动模式。</p>
+<p>导出使用新增的可选 TCP Teach 服务（ID 2、方法 1），不改变已有 UDP 布局。SDK 先读取元数据，再按最多 256 个采样点读取。RT 在控制线程上读取有界数据，使用录制版本号校验，避免导出过程中重新录制后混合两段数据。网络传输与客户端文件写入不持有运动发送锁。失败时删除临时文件并保留已有目标文件；只有完整导出后才替换目标文件。</p>
+<p>JSON 格式为 <code>robot_sdk.teaching_trajectory</code>、<code>version: 1</code>，包含 <code>arm_index</code>、<code>recording_id</code>（字符串）、<code>joint_count</code>、<code>sample_period_sec</code>、<code>sample_count</code>、<code>position_unit: &quot;rad&quot;</code> 和 <code>positions</code>。每行依次为该采样点各关节位置，时间为行号乘采样周期；不包含夹爪数据。导出保留 RT 原始关节数据，不使用 SDK 降频遥测重建轨迹。</p>
+<p>现有 <code>resetPlayback()</code> / <code>startPlayback()</code> 继续使用 RT 内存中的录制。此次新增导出功能不包含文件导入、文件回放或断电恢复。</p>
+      </article>
+    </main>
+  </div>
+</body>
+</html>
