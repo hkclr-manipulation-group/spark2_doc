@@ -9,6 +9,6 @@ Static bilingual documentation for Spark2 users and SDK developers. Visit the [p
 - [Robot SDK 1.5.0 user manuals](index.html#sdk-manuals) are V1.4 and are available in English and Chinese for C++ and Python.
 - The [C++](docs/cpp-api.html) and [Python](docs/python-api.html) references for the `Spark2` class retain their existing URLs. Their Markdown references are linked from the same section.
 - The [URDF archive](downloads/spark2_urdf.zip) includes models with and without a gripper. The model path required for Robot SDK 1.5.0 offline kinematics is specified separately in the quick start.
-- The linked Windows Robot Client 1.1.0 ZIP was repacked from the supplied bundle without its `logs/` directory. The original archive stays local.
+- [Robot Client 1.1.0 for Windows x64](downloads/robot_client-v1.1.0-windows-x86_64.zip) is available from the Downloads section.
 
 When replacing an SDK release, update the quick start, rendered references, API search entries in `app.js`, and versioned download URLs together.
