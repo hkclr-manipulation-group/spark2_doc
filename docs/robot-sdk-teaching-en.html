@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Teaching, recording and trajectory export · Robot SDK 1.5.0</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#reference">Skip to content</a>
+  <header class="topbar">
+    <a class="topbar__brand" href="../index.html">Spark2 <span>Docs</span></a>
+    <a class="text-link" href="robot-sdk-teaching.html" hreflang="zh-CN" lang="zh-CN">中文</a>
+  </header>
+  <div class="docs-layout">
+    <aside class="sidebar reference-sidebar">
+      <nav aria-label="Reference contents">
+        <p class="nav-caption">Robot SDK 1.5.0</p>
+        <a href="../index.html#api">Documentation home</a>
+      </nav>
+      <nav aria-label="Other references">
+        <a href="robot-sdk-cpp.html">C++ API reference</a>
+        <a href="robot-sdk-python.html">Python API reference</a>
+      </nav>
+    </aside>
+    <main class="docs-main reference-main" id="reference">
+      <article class="reference-content">
+        <p class="source-note">Robot SDK 1.5.0 · 2026-11-04</p>
+<h1>Teaching, recording and trajectory export</h1>
+<pre><code class="language-cpp">robot.startTeach().throwIfError();       // Enter drag teaching and record
+robot.stopRecording().throwIfError();    // Freeze the recording and keep drag mode
+robot.stopTeach().throwIfError();        // Exit teaching and command a position hold
+robot.saveTrajectory("teach.json").throwIfError(); // Export to a client-side file
+</code></pre>
+<p>In Python, use <code>start_teach()</code>, <code>stop_recording()</code>, <code>stop_teach()</code> and <code>save_trajectory(local_path)</code>. Check results with <code>raise_for_error()</code>. The corresponding C functions are <code>robot_session_stop_recording</code> and <code>robot_session_save_trajectory</code>. The CLR methods are <code>StopRecording()</code> and <code>SaveTrajectory(localPath)</code>.</p>
+<h2>Recording and position hold</h2>
+<p><code>startTeach()</code> sets the selected arm to gravity compensation and starts sampling. Starting again after sampling has stopped replaces the previous recording. Calling it during an active recording keeps the current RT recording. Both <code>startTeach()</code> and <code>stopRecording()</code> wait for an acknowledgement and execution feedback. Recent RT versions confirm execution using the command sequence number. Older RT versions without command-correlation fields wait for three consecutive fresh feedback frames, which cannot confirm execution of a specific command.</p>
+<p><code>stopRecording()</code> freezes the samples in RT memory and leaves drag mode active. Playback, file export and starting a new recording are separate operations.</p>
+<p><code>stopTeach()</code> can end an active recording or follow <code>stopRecording()</code>. It switches to joint position targets, preserves the configured low-level position or velocity execution mode, and waits for fresh feedback before sending a short hold command. The call fails if the mode change or hold command is rejected, or if feedback times out. An acknowledgement confirms command acceptance. Use <code>waitUntilIdle()</code> if the application needs to wait for the motion state to end. The RT controller and drives handle the transition from torque to position control. Verify the transition on the robot.</p>
+<h2>Exporting a trajectory</h2>
+<p><code>saveTrajectory(local_path)</code> exports frozen samples from drag mode or after teaching ends. It leaves motion and recording state unchanged. Possible errors include <code>MotionInterrupted</code> while recording is active, <code>CommandInvalid</code> when there are no samples, <code>Unsupported</code> when RT lacks the export service and <code>TransportUnavailable</code> when the TCP channel is unavailable.</p>
+<p>Methods on <code>Robot</code> select <code>arm(0)</code>. Use <code>arm(i).saveTrajectory(path)</code> to export samples for a specific arm. The UDP <code>teaching_cmd</code> field controls sampling for the whole robot. On a dual-arm robot, call <code>stopTeach()</code> on each arm to exit drag mode on both arms. Each call sets position hold for the selected arm.</p>
+<p>Export uses the optional TCP Teach service (service ID 2, method 1). The SDK reads metadata, then fetches samples in batches of up to 256. RT checks the recording version to avoid mixing samples from different recordings. Network transfer and file writes run without holding the motion-send lock. The SDK replaces the target file only after a complete export and removes the temporary file if export fails.</p>
+<p>The JSON format is <code>robot_sdk.teaching_trajectory</code> with <code>version: 1</code>. Fields include <code>arm_index</code>, <code>recording_id</code> (string), <code>joint_count</code>, <code>sample_period_sec</code>, <code>sample_count</code>, <code>position_unit: "rad"</code> and <code>positions</code>. Each row contains the raw RT positions for the arm joints at one sample. Multiply the zero-based row index by the sample period to obtain the sample time. The file excludes gripper samples.</p>
+<p><code>resetPlayback()</code> and <code>startPlayback()</code> use the recording in RT memory. File import, playback from an exported file and recovery after power loss are unsupported.</p>
+      </article>
+    </main>
+  </div>
+</body>
+</html>

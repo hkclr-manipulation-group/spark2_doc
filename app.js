@@ -198,20 +198,21 @@ const chinese = {
   "cppApi": "C++ API 参考",
   "pythonApi": "Python API 参考",
   "apiIntro": "使用下方参考查阅 1.5.0 安装包中的 Robot 接口，包括连接、返回结果、运动、状态反馈和配置。",
+  "sdkManuals": "Robot SDK 用户手册",
   "teaching": "示教、录制和轨迹导出",
-  "legacyApi": "Spark2 类接口文档",
-  "legacyNote": "使用 Spark2 类的项目可查阅 V1.2 手册及相应语言的原有在线参考。",
+  "legacyApi": "早期 Spark2 SDK 接口参考",
+  "legacyNote": "早期 SDK 项目使用 Spark2 类，可查阅以下接口参考。",
   "legacyCpp": "在线参考",
-  "cppManual": "V1.2 PDF",
+  "cppManual": "C++ 用户手册",
   "legacyPy": "在线参考",
-  "pyManual": "V1.2 PDF",
+  "pyManual": "Python 用户手册",
   "api": "SDK 与 API 参考",
   "hardwareText": "安装或操作机械臂前，请阅读 Spark2 用户手册，查阅安全要求、固定方式、电源和接线、坐标系、示教及故障恢复。",
   "hardwareManual": "Spark2 用户手册",
   "mounting": "机械与电气安装",
   "drawings": "机械臂与法兰尺寸图",
   "installation": "安装与使用",
-  "modelIntro": "模型包含带夹爪和不带夹爪的 URDF 与 Xacro 装配、网格和 MDH 示意图。解压后保留目录结构，以便解析网格路径。",
+  "modelIntro": "模型包含带夹爪和不带夹爪的 URDF 装配、STL 网格和 MDH 示意图。解压后保留目录结构，以便解析网格路径。",
   "bareArm": "不带夹爪",
   "withGripper": "带夹爪",
   "downloadModel": "Spark2 URDF 模型包",
@@ -221,7 +222,7 @@ const chinese = {
   "sdkLinks": "Robot SDK 1.5.0 安装包",
   "manualDownload": "Spark2 用户手册（PDF）",
   "modelLinks": "URDF 模型包",
-  "referenceLinks": "Spark2 C++ 与 Python 手册及 Markdown",
+  "referenceLinks": "Robot SDK C++ 与 Python 手册",
   "downloads": "资料下载",
   "skip": "跳转到正文",
   "docs": "文档",
@@ -239,6 +240,10 @@ const chinese = {
 const labels = Array.from(document.querySelectorAll('[data-i18n]'), element => ({
   element,
   english: element.textContent,
+}));
+const localizedLinks = Array.from(document.querySelectorAll('[data-zh-href]'), link => ({
+  link,
+  englishHref: link.getAttribute('href'),
 }));
 const buttons = document.querySelectorAll('[data-lang]');
 const search = document.getElementById('doc-search');
@@ -301,6 +306,9 @@ function applyLanguage(lang) {
   language = lang === 'zh' ? 'zh' : 'en';
   for (const { element, english } of labels) {
     element.textContent = language === 'zh' ? chinese[element.dataset.i18n] : english;
+  }
+  for (const { link, englishHref } of localizedLinks) {
+    link.setAttribute('href', language === 'zh' ? link.dataset.zhHref : englishHref);
   }
   for (const button of buttons) {
     const active = button.dataset.lang === language;

@@ -91,17 +91,22 @@ cmake --build build --config Release --parallel</code></pre>
               <span class="reference-card__label">Robot SDK 1.5.0</span>
               <strong data-i18n="cppApi">C++ API reference</strong>
             </a>
-        <a class="reference-card" href="./docs/robot-sdk-python.html">
+            <a class="reference-card" href="./docs/robot-sdk-python.html">
               <span class="reference-card__label">Robot SDK 1.5.0</span>
               <strong data-i18n="pythonApi">Python API reference</strong>
             </a>
           </div>
-          <p><a href="./docs/robot-sdk-teaching.html" data-i18n="teaching">Teaching, recording and trajectory export (Chinese)</a></p>
-          <h3 id="legacy-api" data-i18n="legacyApi">Spark2 class documentation</h3>
-          <p data-i18n="legacyNote">For projects using the Spark2 class, consult the V1.2 manuals and the existing online reference for your language.</p>
+          <h3 id="sdk-manuals" data-i18n="sdkManuals">Robot SDK user manuals</h3>
+          <div class="download-list">
+            <a href="./downloads/Robot_SDK_User_Manual_Cpp.pdf" data-zh-href="./downloads/Robot_SDK_User_Manual_CN.pdf" download><span><strong data-i18n="cppManual">C++ user manual</strong><small>Robot SDK 1.5.0 · PDF · V1.4</small></span><span aria-hidden="true">↓</span></a>
+            <a href="./downloads/Robot_SDK_User_Manual_Python.pdf" data-zh-href="./downloads/Robot_SDK_User_Manual_Python_CN.pdf" download><span><strong data-i18n="pyManual">Python user manual</strong><small>Robot SDK 1.5.0 · PDF · V1.4</small></span><span aria-hidden="true">↓</span></a>
+          </div>
+          <p><a href="./docs/robot-sdk-teaching-en.html" data-zh-href="./docs/robot-sdk-teaching.html" data-i18n="teaching">Teaching, recording and trajectory export</a></p>
+          <h3 id="legacy-api" data-i18n="legacyApi">Earlier Spark2 SDK reference</h3>
+          <p data-i18n="legacyNote">These references document the Spark2 class used by earlier SDK projects.</p>
           <ul class="legacy-links">
-            <li>C++ · <a href="./docs/cpp-api.html" data-i18n="legacyCpp">Online reference</a> · <a href="./downloads/Spark2_SDK_User_Manual_Cpp.pdf" data-i18n="cppManual">V1.2 PDF</a> · <a href="./downloads/spark2_sdk_cpp.md" download>Markdown</a></li>
-            <li>Python · <a href="./docs/python-api.html" data-i18n="legacyPy">Online reference</a> · <a href="./downloads/Spark2_SDK_User_Manual_Python.pdf" data-i18n="pyManual">V1.2 PDF</a> · <a href="./downloads/spark2_sdk_python.md" download>Markdown</a></li>
+            <li>C++ · <a href="./docs/cpp-api.html" data-i18n="legacyCpp">Online reference</a> · <a href="./downloads/spark2_sdk_cpp.md" download>Markdown</a></li>
+            <li>Python · <a href="./docs/python-api.html" data-i18n="legacyPy">Online reference</a> · <a href="./downloads/spark2_sdk_python.md" download>Markdown</a></li>
           </ul>
         </section>
 
@@ -119,13 +124,13 @@ cmake --build build --config Release --parallel</code></pre>
         <section id="models" class="doc-section">
           <h2 data-i18n="models">URDF models</h2>
 
-          <p data-i18n="modelIntro">The archive contains URDF and Xacro assemblies with and without the gripper, meshes and an MDH diagram. Keep the extracted directory structure so the mesh paths resolve.</p>
+          <p data-i18n="modelIntro">The archive contains URDF assemblies with and without the gripper, STL meshes and an MDH diagram. Keep the extracted directory structure so the mesh paths resolve.</p>
           <ul>
-            <li><span data-i18n="bareArm">Arm only</span> · <code>spark2/assembly/no_gripper/spark2_stl.urdf</code> · <code>spark2_obj.urdf</code></li>
-            <li><span data-i18n="withGripper">Arm with gripper</span> · <code>spark2/assembly/gripper/spark2_stl.urdf</code></li>
+            <li><span data-i18n="bareArm">Arm only</span> · <code>spark2_urdf/no_gripper/spark2_stl.urdf</code></li>
+            <li><span data-i18n="withGripper">Arm with gripper</span> · <code>spark2_urdf/with_gripper/spark2_stl.urdf</code></li>
           </ul>
           <div class="download-list">
-            <a href="./downloads/spark2_urdf.zip" download><span><strong data-i18n="downloadModel">Spark2 URDF package</strong><small>ZIP · 4.5 MB</small></span><span aria-hidden="true">↓</span></a>
+            <a href="./downloads/spark2_urdf.zip" download><span><strong data-i18n="downloadModel">Spark2 URDF package</strong><small>ZIP · 3.2 MB</small></span><span aria-hidden="true">↓</span></a>
           </div>
         </section>
 
@@ -140,7 +145,7 @@ cmake --build build --config Release --parallel</code></pre>
             <li><a href="#quick-start" data-i18n="sdkLinks">Robot SDK 1.5.0 packages</a></li>
             <li><a href="./downloads/Sparkt2_User_Manual.pdf" download data-i18n="manualDownload">Spark2 user manual (PDF)</a></li>
             <li><a href="#models" data-i18n="modelLinks">URDF package</a></li>
-            <li><a href="#legacy-api" data-i18n="referenceLinks">Spark2 C++ and Python manuals and Markdown</a></li>
+            <li><a href="#sdk-manuals" data-i18n="referenceLinks">Robot SDK C++ and Python manuals</a></li>
           </ul>
         </section>
       </div>
